@@ -1,0 +1,29 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.color.com/docs/getting-started-with-color-apis
+docs: https://docs.color.com/docs/getting-started-with-color-apis
+summary:
+  types:
+  - http
+  api_key_in: []
+  oauth2_flows: []
+  notes: >-
+    API access uses a per-environment bearer API token (static token issued by
+    Color, supplied as Authorization: Bearer <token>). Staging and production
+    each have their own token and base host. Portal/user sign-in is separately
+    handled via SAML 2.0 SSO (see conventions).
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  description: >-
+    Per-environment bearer API token in the Authorization header. Obtain
+    separate staging and production tokens from Color.
+  sources:
+  - openapi/color-eligibility-openapi.yml
+sso:
+  protocol: SAML 2.0
+  idp_initiated: false
+  acs_url: https://colorhealth.kinde.com/login/saml/callback
+  sp_initiated_bookmark: https://home.color.com/start-sso?domain=<email_domain>
+  docs: https://docs.color.com/docs/sso-integration
