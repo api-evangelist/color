@@ -1,0 +1,46 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.color.com/docs/getting-started-with-color-apis
+docs: https://docs.color.com
+authentication:
+  style: bearer-token
+  header: Authorization
+  format: "Bearer <token>"
+  environments:
+    production: https://api.color.com
+    staging: https://external.staging.color.com
+  notes: Separate API tokens per environment.
+sso:
+  protocol: SAML 2.0
+  idp_initiated: false
+  docs: https://docs.color.com/docs/sso-integration
+idempotency:
+  supported: false
+  notes: No idempotency-key contract is documented in Color's public API docs.
+pagination:
+  supported: unknown
+  notes: Not documented in the public getting-started guide.
+versioning:
+  scheme: uri-path
+  current: v1
+  example: /api/v1/populations/eligibility_list
+request_formats:
+- multipart/form-data
+file_transfer:
+  sftp:
+    host: transfer.color.com
+    port: 22
+    auth: SSH public/private key pair
+    docs: https://docs.color.com/docs/connecting-to-colors-sftp-server
+  encryption:
+    method: PGP
+    docs: https://docs.color.com/docs/encrypting-files-with-pgp
+  use_cases:
+  - Eligibility files (CSV / 834)
+  - Claims submission and insurance files
+  - Receiving Color data and member events
+cross_links:
+  authentication: authentication/color-authentication.yml
+  lifecycle: lifecycle/color-lifecycle.yml
+  errors: null
+  rate_limits: null

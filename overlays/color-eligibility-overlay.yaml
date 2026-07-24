@@ -1,0 +1,23 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Color Eligibility List API
+  version: 1.0.0
+extends: openapi/color-eligibility-openapi.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-source: https://docs.color.com/docs/getting-started-with-color-apis
+    x-apievangelist-note: >-
+      Spec reconstructed from Color's published getting-started documentation.
+      Color also documents Self-Reported Results and Vaccination Status APIs
+      whose schemas are behind a bot-protected ReadMe reference and are not
+      captured here.
+- target: $.info
+  update:
+    x-agent-ready:
+      authentication: bearer-token
+      idempotency: not-documented
+      sandbox: https://external.staging.color.com
+- target: $.paths['/api/v1/populations/eligibility_list'].post
+  update:
+    x-apievangelist-conventions: conventions/color-conventions.yml

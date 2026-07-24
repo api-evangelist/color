@@ -1,0 +1,22 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.color.com/docs/getting-started-with-color-apis
+environments:
+  live:
+    name: Production
+    base_url: https://api.color.com
+  test:
+    name: Staging
+    base_url: https://external.staging.color.com
+    notes: >-
+      Color provides a separate staging environment for integration testing.
+      Staging requires its own staging API token (distinct from production).
+key_separation:
+  model: separate per-environment bearer tokens
+  notes: Staging and production API tokens are issued separately.
+test_values:
+  published: false
+  notes: >-
+    Color does not publish magic/test identifiers, test files, or fixture
+    tooling in its public docs; test data is coordinated during partner
+    onboarding. No test values fabricated.

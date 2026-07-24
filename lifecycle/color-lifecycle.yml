@@ -1,0 +1,23 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.color.com
+versioning:
+  scheme: uri-path
+  current: v1
+  docs: https://docs.color.com/docs/getting-started-with-color-apis
+deprecation:
+  policy_url: null
+  sunset_header: unknown
+  notes: No formal deprecation/sunset policy is published in Color's public docs.
+sla:
+  url: null
+  uptime_target: null
+status_page: null
+status_page_notes: >-
+  No live provider-operated status page found. colorhealth.statuspage.io resolves
+  to Atlassian's generic Statuspage marketing page (subdomain not provisioned),
+  so no StatusPage pointer is emitted.
+changelog:
+  url: https://docs.color.com/changelog
+  artifact: changelog/color-changelog.yml
+deprecated_operations: []

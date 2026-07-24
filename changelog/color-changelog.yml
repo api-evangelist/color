@@ -1,0 +1,26 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.color.com/changelog
+scheme: dated-entries
+current_version: v1
+notes: >-
+  Color publishes a dated changelog on its ReadMe docs site. Entries are
+  product/dashboard oriented and the public changelog exposes only relative
+  dates (no absolute timestamps); the most recent entry is roughly two years
+  old. Recent window captured below from the changelog index.
+entries:
+- title: New Dashboards and Changes to Care Programs Dashboards
+  relative_date: over 2 years ago
+  category: dashboards
+- title: Dashboard Improvements
+  relative_date: about 3 years ago
+  category: dashboards
+- title: New Dashboard
+  relative_date: about 3 years ago
+  category: dashboards
+- title: Dashboard Improvements
+  relative_date: over 3 years ago
+  category: dashboards
+- title: Dashboard Improvements
+  relative_date: over 3 years ago
+  category: dashboards

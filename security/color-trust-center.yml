@@ -1,0 +1,17 @@
+generated: '2026-07-18'
+method: searched
+probe: true
+source: https://security.color.com/
+url: https://security.color.com/
+certifications:
+- SOC 2
+- HIPAA
+- CSA STAR
+evidence:
+- source: https://security.color.com/
+  keywords:
+  - soc 2
+  - soc2
+  - hipaa
+  - trust center
+  - csa star

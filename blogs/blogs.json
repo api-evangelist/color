@@ -1,0 +1,11 @@
+{
+  "repo": "color",
+  "feeds": [
+    {
+      "source": "https://docs.color.com/changelog",
+      "error": "HTTPError"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-07-20T13:31:34Z"
+}

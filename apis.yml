@@ -1,8 +1,30 @@
 aid: color
 name: Color
-description: Color is a company surfaced as a portfolio company of general-catalyst and added to the API
-  Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Color Health is an oncologist-led virtual cancer care company that provides
+  screening, early detection, diagnosis, treatment guidance, and survivorship
+  support to employers, health plans, unions, consultants, and public-sector
+  organizations. Originally founded as a genomics testing company (Color
+  Genomics), Color now operates a virtual clinical platform combining at-home
+  testing kits, preventive health programs, and AI-assisted cancer care. For
+  integration partners Color publishes a developer documentation surface at
+  docs.color.com covering an Eligibility List API, Self-Reported Results and
+  Vaccination Status APIs, SAML-based SSO, and SFTP/PGP file transfer for
+  eligibility, claims, and member-event data.
 url: https://raw.githubusercontent.com/api-evangelist/color/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://www.color.com/wp-content/uploads/2021/02/Wordmark_Color_RGB.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
@@ -11,12 +33,86 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-18'
 tags:
 - Company
-apis: []
+- Health
+- Healthcare
+- Genomics
+- Oncology
+- Cancer Care
+- Preventive Health
+- Eligibility
+- Virtual Care
+apis:
+- aid: color:color-eligibility-api
+  name: Color Eligibility API
+  description: The Eligibility API from Color — 1 operation(s) for eligibility.
+  humanURL: https://docs.color.com/docs/getting-started-with-color-apis
+  baseURL: https://api.color.com
+  tags:
+  - Eligibility
+  properties:
+  - type: OpenAPI
+    url: openapi/color-eligibility-api-openapi.yml
+  - type: Documentation
+    url: https://docs.color.com/docs/getting-started-with-color-apis
+  - type: APIReference
+    url: https://docs.color.com/reference
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+common:
+- type: TrustCenter
+  url: security/color-trust-center.yml
+- type: Compliance
+  url: https://security.color.com/
+- type: DomainSecurity
+  url: security/color-domain-security.yml
+- type: DeveloperPortal
+  url: https://docs.color.com
+- type: Documentation
+  url: https://docs.color.com/docs
+- type: APIReference
+  url: https://docs.color.com/reference
+- type: GettingStarted
+  url: https://docs.color.com/docs/getting-started-with-color-apis
+- type: ChangeLog
+  url: https://docs.color.com/changelog
+- type: Blog
+  url: https://color.com/blog
+- type: GitHubOrganization
+  url: https://github.com/color
+- type: SignUp
+  url: https://home.color.com/sign-in
+- type: Support
+  url: https://color.com/contact-us
+- type: TermsOfService
+  url: https://color.com/policies/tos
+- type: PrivacyPolicy
+  url: https://color.com/policies/privacy
+- type: Website
+  url: https://www.color.com
+- type: Authentication
+  url: authentication/color-authentication.yml
+- type: Conventions
+  url: conventions/color-conventions.yml
+- type: Lifecycle
+  url: lifecycle/color-lifecycle.yml
+- type: ChangeLog
+  url: changelog/color-changelog.yml
+- type: Sandbox
+  url: sandbox/color-sandbox.yml
+- type: WellKnown
+  url: well-known/color-well-known.yml
+- type: LLMsTxt
+  url: llms/color-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

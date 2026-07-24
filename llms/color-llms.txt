@@ -1,0 +1,39 @@
+# Color Knowledge Base Documentation
+
+> Welcome to Color's Knowledge Base: a place to find getting started guides, FAQs and video tutorials about Color's products and services.
+
+## Guides
+- [Eligibility Files](https://docs.color.com/docs/eligibility-files.md)
+- [CSV Eligibility File](https://docs.color.com/docs/csv-eligibility-file.md)
+- [834 Eligibility File](https://docs.color.com/docs/834-eligibility-file.md)
+- [Connecting to Color's SFTP server](https://docs.color.com/docs/connecting-to-colors-sftp-server.md)
+- [Encrypting Files with PGP](https://docs.color.com/docs/encrypting-files-with-pgp.md)
+- [Submitting Claims](https://docs.color.com/docs/claims-submission.md)
+- [Insurance Files](https://docs.color.com/docs/insurance-files.md)
+- [Receiving Color Data](https://docs.color.com/docs/receiving-color-data.md)
+- [Generating PGP Keys](https://docs.color.com/docs/generating-pgp-keys.md)
+- [Sending Claims Data & Member Events](https://docs.color.com/docs/sending-claims-data-member-events.md)
+- [Getting Started with Color Dashboards](https://docs.color.com/docs/getting-started-with-color-dashboards.md)
+- [Filtering](https://docs.color.com/docs/filtering.md)
+- [Care Programs Dashboards](https://docs.color.com/docs/care-programs-dashboards.md)
+- [Care Programs - Risk & Screening Assessment](https://docs.color.com/docs/care-programs-risk-screening-assessment.md)
+- [Care Programs - Participant Health](https://docs.color.com/docs/care-programs-participant-health.md)
+- [Care Programs - Testing](https://docs.color.com/docs/care-programs-testing.md)
+- [Care Programs - Demographics](https://docs.color.com/docs/care-programs-demographics.md)
+- [SSO Integration](https://docs.color.com/docs/sso-integration.md)
+- [Color Provider Portal Overview](https://docs.color.com/docs/cpp.md)
+- [STI Program - Overview](https://docs.color.com/docs/sti_overview.md): STI program overview and information on at-home testing
+- [STI Participant Experience - Overview](https://docs.color.com/docs/sti_participant_experience.md)
+- [Antivirals Hotline](https://docs.color.com/docs/antivirals-hotline.md)
+- [COVID-19 Antivirals](https://docs.color.com/docs/treatments.md)
+- [Preventive Health - Overview](https://docs.color.com/docs/overview-4.md)
+- [Preventive Health - Ship To Home](https://docs.color.com/docs/preventative-health-ship-to-home.md)
+- [Preventive Health - Activation](https://docs.color.com/docs/preventive-health-kit-activation.md)
+- [Preventive Health Results](https://docs.color.com/docs/preventative-health-results.md)
+
+## Changelog
+- [New Dashboards and Changes to Care Programs Dashboards](https://docs.color.com/changelog/new-dashboards-and-changes-to-care-programs-dashboards.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-16.md)
+- [New Dashboard](https://docs.color.com/changelog/new-dashboard.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-15.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-14.md)

@@ -1,0 +1,14 @@
+{
+  "provider": "color",
+  "sources": [
+    "color-eligibility-api-openapi.yml"
+  ],
+  "outputs": [
+    "color-eligibility-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

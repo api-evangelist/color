@@ -1,0 +1,28 @@
+generated: '2026-07-18'
+method: searched
+notes: >-
+  Probed the /.well-known/ discovery surface on Color's API and web hosts.
+  No well-known discovery documents are published; api.color.com returns clean
+  404s and the www host returns 502 for these paths. Absence recorded as valid
+  data. No raw files saved.
+hosts:
+- host: https://api.color.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+- host: https://color.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 502
+  - path: /.well-known/openid-configuration
+    status: 502
+  - path: /.well-known/oauth-authorization-server
+    status: 502
+  - path: /.well-known/api-catalog
+    status: 502
+  - path: /.well-known/ai-plugin.json
+    status: 502
