@@ -65,6 +65,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/color-eligibility-overlay.yaml
 - type: TrustCenter
   url: security/color-trust-center.yml
 - type: Compliance
