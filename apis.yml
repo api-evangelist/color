@@ -7,23 +7,31 @@ description: >-
   organizations. Originally founded as a genomics testing company (Color
   Genomics), Color now operates a virtual clinical platform combining at-home
   testing kits, preventive health programs, and AI-assisted cancer care. For
-  integration partners Color publishes a developer documentation surface at
-  docs.color.com covering an Eligibility List API, Self-Reported Results and
-  Vaccination Status APIs, SAML-based SSO, and SFTP/PGP file transfer for
-  eligibility, claims, and member-event data.
+  integration partners Color publishes an External API V1 at
+  api.color.com/api/v1/external — 13 operations across eligibility entries,
+  population reporting (participants, samples, results, self-reported results)
+  and a lab/LIMS sample lifecycle — documented at docs.color.com/reference,
+  alongside SAML-based SSO and SFTP/PGP file transfer for eligibility, claims,
+  and member-event data.
 url: https://raw.githubusercontent.com/api-evangelist/color/refs/heads/main/apis.yml
 accessModel:
-  pricing: unknown
-  onboarding: self-serve
+  pricing: enterprise
+  onboarding: sales-gate
   trial: false
   try_now: false
   public: false
-  label: Self-serve signup
-  confidence: medium
+  label: Contact sales
+  confidence: high
   source:
+  - plans
+  - sandbox
   - authentication
-  generated: '2026-07-22'
-  method: derived
+  generated: '2026-08-15'
+  method: searched
+  note: >-
+    No pricing page (www.color.com/pricing soft-404s to the homepage) and no
+    self-service key issuance — Color's getting-started guide tells partners to
+    "reach out to your Color representative for a staging key".
 image: https://www.color.com/wp-content/uploads/2021/02/Wordmark_Color_RGB.png
 x-type: company
 x-source: vc-portfolio
@@ -33,7 +41,7 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-18'
+modified: '2026-08-15'
 tags:
 - Company
 - Health
@@ -44,17 +52,31 @@ tags:
 - Preventive Health
 - Eligibility
 - Virtual Care
+- Diagnostics
+- Laboratory
+- Employee Benefits
 apis:
 - aid: color:color-eligibility-api
-  name: Color Eligibility API
-  description: The Eligibility API from Color — 1 operation(s) for eligibility.
-  humanURL: https://docs.color.com/docs/getting-started-with-color-apis
-  baseURL: https://api.color.com
+  name: Color External API V1
+  description: >-
+    Color's partner-facing REST API — 13 operations over three surfaces:
+    eligibility entries (list/create/read/update plus CSV or ANSI 834 file
+    upload), population reporting (participants, samples, results, self-reported
+    results) and a lab/LIMS sample lifecycle (accession, report result, destroy).
+    Authentication is a Color-issued per-environment bearer token.
+  humanURL: https://docs.color.com/reference
+  baseURL: https://api.color.com/api/v1/external
   tags:
   - Eligibility
+  - Populations
+  - Samples
+  - Results
+  - Healthcare
   properties:
   - type: OpenAPI
-    url: openapi/color-eligibility-api-openapi.yml
+    url: openapi/color-external-api-v1-openapi.yml
+  - type: Overlay
+    url: overlays/color-external-api-v1-overlay.yaml
   - type: Documentation
     url: https://docs.color.com/docs/getting-started-with-color-apis
   - type: APIReference
@@ -66,13 +88,19 @@ maintainers:
   email: info@apis.io
 common:
 - type: Overlay
-  url: overlays/color-eligibility-overlay.yaml
+  url: overlays/color-external-api-v1-overlay.yaml
 - type: TrustCenter
   url: security/color-trust-center.yml
 - type: Compliance
   url: https://security.color.com/
+- type: Conformance
+  url: conformance/color-conformance.yml
 - type: DomainSecurity
   url: security/color-domain-security.yml
+- type: VulnerabilityDisclosure
+  url: security/color-vulnerability-disclosure.yml
+- type: Security
+  url: security/color-vulnerability-disclosure.yml
 - type: DeveloperPortal
   url: https://docs.color.com
 - type: Documentation
@@ -101,20 +129,36 @@ common:
   url: authentication/color-authentication.yml
 - type: Conventions
   url: conventions/color-conventions.yml
+- type: Idempotency
+  url: conventions/color-conventions.yml
+- type: ErrorCatalog
+  url: errors/color-problem-types.yml
+- type: DataModel
+  url: data-model/color-data-model.yml
 - type: Lifecycle
   url: lifecycle/color-lifecycle.yml
 - type: ChangeLog
   url: changelog/color-changelog.yml
 - type: Sandbox
   url: sandbox/color-sandbox.yml
-- type: WellKnown
-  url: well-known/color-well-known.yml
+- type: Packages
+  url: packages/color-packages.yml
+- type: Plans
+  url: plans/color-plans-pricing.yml
+- type: MCPServer
+  url: mcp/color-mcp.yml
 - type: LLMsTxt
   url: llms/color-llms.txt
 - type: AgentSkill
   url: skills/_index.yml
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-15'
+  status: enriched
+  artifacts_added: 17
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+  note: >-
+    Found and captured Color's real published OpenAPI (13 operations) via the
+    ReadMe API registry the docs reference renders; the previous round carried a
+    1-operation spec hand-reconstructed from prose. Removed a WellKnown pointer
+    that was backed by an all-404 probe, and did not emit SDKs, RateLimits,
+    Pricing, Roadmap or StatusPage pointers because none of those surfaces exist.
