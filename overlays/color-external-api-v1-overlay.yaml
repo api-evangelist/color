@@ -1,0 +1,81 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Color External API V1
+  version: 1.0.0
+extends: openapi/_original/color-external-api-v1-openapi.json
+x-apievangelist:
+  generated: '2026-08-15'
+  method: generated
+  source: openapi/_original/color-external-api-v1-openapi.json
+  note: >-
+    The original is Color's own published OpenAPI 3.0.0, downloaded verbatim from the
+    ReadMe API registry that docs.color.com/reference renders (oasPublicUrl
+    "@color/v1.0#105r2r3yl3ue1mng"). These actions record only what API Evangelist added
+    on top of it; the original is never mutated.
+actions:
+- target: $.info
+  description: The published spec ships an empty info.description; this supplies one.
+  update:
+    description: >-
+      Color Health's External API V1 — the partner-facing REST API behind
+      docs.color.com/reference. It lets benefit administrators and lab/LIMS partners
+      manage eligibility entries for their populations, upload eligibility files, query
+      participants, results, samples and self-reported results, and (for lab partners)
+      accession, report and destroy test samples. Authentication is a Color-issued bearer
+      token supplied in the Authorization header; staging and production use separate
+      tokens.
+    contact:
+      name: Color Health API Support
+      url: https://docs.color.com/reference
+      email: dev@color.com
+- target: $.info
+  description: Provenance and agent-readiness annotations.
+  update:
+    x-apievangelist-source: https://docs.color.com/reference
+    x-apievangelist-spec-origin: >-
+      https://dash.readme.com/api/v1/api-registry/105r2r3yl3ue1mng (HTTP 200,
+      application/json) — the registry entry docs.color.com/reference points at.
+    x-agent-ready:
+      authentication: bearer-token
+      idempotency: >-
+        Documented per-operation on the three /samples/{sample_barcode}/* operations
+        (repeat calls are no-ops). No Idempotency-Key header contract.
+      pagination: cursor (eligibility) and page/page_size (populations)
+      sandbox: https://api.staging.color.com/api/v1/external
+- target: $.servers[0]
+  description: Name the production server the published spec leaves undescribed.
+  update:
+    description: Production
+- target: $
+  description: >-
+    Declare the three tags the operations already use (eligibility, populations,
+    samples); the published spec uses them but never declares them at the root.
+  update:
+    tags:
+    - name: eligibility
+      description: Eligibility entries and eligibility-file uploads for a population.
+    - name: populations
+      description: >-
+        Read-side queries across a population: participants, results, samples,
+        self-reported results.
+    - name: samples
+      description: 'Lab/LIMS sample lifecycle: accession, result reporting, destruction.'
+- target: $.paths['/samples/{sample_barcode}/accession'].post
+  description: >-
+    The published spec omits operationId on all three /samples/* operations; these are
+    API Evangelist-assigned identifiers following the spec's own naming convention.
+  update:
+    operationId: samples_accession_create
+    summary: Record that a sample arrived at the lab
+- target: $.paths['/samples/{sample_barcode}/results'].post
+  update:
+    operationId: samples_results_create
+    summary: Record a test result for a sample
+- target: $.paths['/samples/{sample_barcode}/destroy'].post
+  update:
+    operationId: samples_destroy_create
+    summary: Record that an unapproved sample was destroyed
+- target: $.paths['/populations/eligibility_list'].post
+  description: Cross-link the cross-cutting conventions artifact.
+  update:
+    x-apievangelist-conventions: conventions/color-conventions.yml

@@ -1,30 +1,138 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
-source: https://docs.color.com/docs/getting-started-with-color-apis
+source: https://docs.color.com/reference
 docs: https://docs.color.com
+derived_from: openapi/_original/color-external-api-v1-openapi.json
 authentication:
   style: bearer-token
   header: Authorization
-  format: "Bearer <token>"
+  format: Bearer <token>
+  scheme_name: Bearer
+  scheme_declared_as: >-
+    apiKey in header (name Authorization) — Color declares it as an apiKey scheme
+    rather than http/bearer, so tooling that keys off `scheme: bearer` will miss it.
+  applied: globally, via a root-level security requirement
   environments:
-    production: https://api.color.com
-    staging: https://external.staging.color.com
-  notes: Separate API tokens per environment.
+    production: https://api.color.com/api/v1/external
+    staging: https://api.staging.color.com/api/v1/external
+    staging_legacy: https://external.staging.color.com/api/v1
+  notes: >-
+    Separate API tokens per environment, issued by Color during partner onboarding.
+    There is no self-service key issuance.
+  artifact: authentication/color-authentication.yml
 sso:
   protocol: SAML 2.0
   idp_initiated: false
   docs: https://docs.color.com/docs/sso-integration
+  note: Portal sign-in only; unrelated to API authentication.
 idempotency:
-  supported: false
-  notes: No idempotency-key contract is documented in Color's public API docs.
+  supported: partial
+  mechanism: server-side, per-operation — no Idempotency-Key header
+  header: null
+  key_scope: null
+  retention: null
+  idempotent_operations:
+  - operation: samples_accession_create
+    published_wording: >-
+      "If the sample was previously accessioned by the caller, its status will not
+      be modified (the endpoint is idempotent)."
+  - operation: samples_results_create
+    published_wording: >-
+      "If the result has already been reported (identified by the assay and the
+      completion time), nothing happens (the endpoint is idempotent)."
+  - operation: samples_destroy_create
+    published_wording: >-
+      "If the sample was already destroyed, nothing happens (the endpoint is
+      idempotent)."
+  non_idempotent_operations:
+  - operation: eligibility_entries_create
+    risk: A retried POST creates a duplicate eligibility entry.
+  - operation: populations_eligibility_list
+    risk: >-
+      A retried upload re-processes the whole file; with replace=true a retry after
+      a partial failure can invalidate participants that should have stayed active.
+  notes: >-
+    Color publishes genuine idempotency semantics, but only on the three lab
+    /samples/{sample_barcode}/* write operations, and only as behaviour described
+    in the contract — there is no idempotency key an agent can supply. The two
+    eligibility write paths carry no idempotency guarantee at all. Scope this
+    narrowly: three of four write surfaces are retry-safe, the fourth is the
+    destructive one.
 pagination:
-  supported: unknown
-  notes: Not documented in the public getting-started guide.
+  supported: true
+  styles:
+  - style: cursor
+    used_by: [eligibility_entries_list]
+    params: [cursor, page_size, ordering]
+    page_size:
+      default: 50
+      min: 1
+      max: 500
+    response_fields: [next, previous, results]
+    note: >-
+      next/previous are fully-formed URLs, null on the last/first page. ordering
+      accepts created_at or -created_at.
+  - style: page-number
+    used_by: [populations_participants_list, populations_results_list, populations_samples_list,
+      populations_self_reported_results_list]
+    params: [page, page_size]
+    page_size:
+      default: 50
+      min: 1
+      max: 500
+    response_fields: [next, previous, results]
+  inconsistency: >-
+    The two styles are not interchangeable — /eligibility/entries paginates by
+    opaque cursor while every /populations/* list paginates by page number. An
+    agent has to branch per endpoint.
+filtering:
+  common_params: [populations, unique_identifiers, external_ids, ordering]
+  time_windows:
+  - latest_sample_activated_at_start / latest_sample_activated_at_end
+  - reported_at_start / reported_at_end
+  - test_date_start / test_date_end
+  array_style: form, explode false (comma-separated)
+field_expansion:
+  supported: false
+  note: Related objects are always fully embedded ($ref); there is no expand/fields
+    parameter.
+metadata:
+  supported: false
+  passthrough_fields: [external_id, unique_identifier, testing_cadence_cohort]
+  note: >-
+    No free-form metadata object, but external_id is explicitly documented as
+    "passed through for you to track with results".
+request_id_tracing:
+  supported: false
+  note: No request-id or correlation header is documented in the spec or the docs.
 versioning:
   scheme: uri-path
   current: v1
-  example: /api/v1/populations/eligibility_list
+  example: /api/v1/external/eligibility/entries
+  note: >-
+    The version sits in the base path, so servers[0] already pins it:
+    https://api.color.com/api/v1/external. Color's docs call the newer eligibility
+    endpoints "Eligibility V2 API" in prose, but the URI version is still v1.
+  artifact: lifecycle/color-lifecycle.yml
+error_envelope:
+  media_type: application/json
+  machine_readable: false
+  problem_json: false
+  auth_failure_status: 403
+  note: >-
+    No schema on any 4xx/5xx response and no error-code registry. Note that
+    authentication failures return 403, not 401.
+  artifact: errors/color-problem-types.yml
+rate_limit_signaling:
+  documented: false
+  headers: []
+  exhaustion_status: null
+  note: >-
+    No published limits, no rate-limit response headers, no 429 anywhere in the
+    contract or the 37-page docs index.
+  artifact: rate-limits/color-rate-limits.yml
 request_formats:
+- application/json
 - multipart/form-data
 file_transfer:
   sftp:
@@ -36,11 +144,18 @@ file_transfer:
     method: PGP
     docs: https://docs.color.com/docs/encrypting-files-with-pgp
   use_cases:
-  - Eligibility files (CSV / 834)
-  - Claims submission and insurance files
-  - Receiving Color data and member events
+  - Eligibility files (CSV / ANSI 834)
+  - Medical and pharmacy claims submission
+  - Member events
+  - Receiving Color data (enrollment, risk, at-home testing, scheduling, referrals)
+  note: >-
+    For most partners the bulk surface is SFTP + PGP on an agreed cadence, not the
+    REST API. Return data is CSV with a fixed file-naming convention
+    (<feed>_[CompanyName]_[YYYYMMDD].csv) — it is not an event stream.
 cross_links:
   authentication: authentication/color-authentication.yml
   lifecycle: lifecycle/color-lifecycle.yml
-  errors: null
-  rate_limits: null
+  errors: errors/color-problem-types.yml
+  rate_limits: rate-limits/color-rate-limits.yml
+  data_model: data-model/color-data-model.yml
+  sandbox: sandbox/color-sandbox.yml

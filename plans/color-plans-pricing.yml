@@ -1,0 +1,45 @@
+generated: '2026-08-15'
+method: searched
+source: https://www.color.com/
+plan_count: 0
+plans: []
+model: enterprise-contract
+findings:
+  published_pricing: false
+  detail: >-
+    Color publishes no pricing page and no plans. It sells to employers, health
+    plans, unions, benefits consultants and public-sector organisations under
+    negotiated contracts, and routes every commercial enquiry through a contact
+    form. There is no self-service signup for the API either — API tokens are
+    issued by a Color representative during partner onboarding.
+  soft_404_warning: >-
+    www.color.com answers HTTP 200 for arbitrary unknown paths and renders the
+    homepage. /pricing and /roadmap both return 200 with <title>Home - Color
+    Health</title>, so neither is a real page. Do not read those 200s as evidence
+    of a pricing or roadmap surface.
+  api_access: >-
+    Getting-started tells partners to "reach out to your Color representative for a
+    staging key" — sales-gated, not self-serve.
+pointers_withheld:
+- type: Pricing
+  reason: No pricing page exists; www.color.com/pricing is a soft-404 to the homepage.
+- type: Roadmap
+  reason: No roadmap page exists; www.color.com/roadmap is a soft-404 to the homepage.
+contact: https://color.com/contact-us
+evidence:
+- url: https://www.color.com/pricing
+  status: 200
+  note: soft-404 — renders "Home - Color Health"
+- url: https://color.com/pricing
+  status: 200
+  note: soft-404 — renders "Home - Color Health"
+- url: https://www.color.com/roadmap
+  status: 200
+  note: soft-404 — renders "Home - Color Health"
+- url: https://color.com/contact-us
+  status: 200
+  note: real page — "Contact Us - Color Health"
+- url: https://docs.color.com/docs/getting-started-with-color-apis
+  status: 200
+  note: 'states: "A Color staging API key (please reach out to your Color representative
+    for a staging key)"'

@@ -1,29 +1,63 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
-source: https://docs.color.com/docs/getting-started-with-color-apis
+source: https://docs.color.com/reference
 docs: https://docs.color.com/docs/getting-started-with-color-apis
 summary:
   types:
-  - http
-  api_key_in: []
+  - apiKey
+  api_key_in:
+  - header
   oauth2_flows: []
   notes: >-
-    API access uses a per-environment bearer API token (static token issued by
-    Color, supplied as Authorization: Bearer <token>). Staging and production
-    each have their own token and base host. Portal/user sign-in is separately
-    handled via SAML 2.0 SSO (see conventions).
+    API access uses a per-environment static bearer token issued by Color and sent
+    as "Authorization: Bearer <token>". Staging and production each have their own
+    token and base host, and tokens are handed out by a Color representative during
+    partner onboarding — there is no self-service key issuance. Portal/user sign-in
+    is separate and handled via SAML 2.0 SSO.
 schemes:
-- name: bearerAuth
-  type: http
-  scheme: bearer
+- name: Bearer
+  type: apiKey
+  in: header
+  header_name: Authorization
+  value_format: Bearer <token>
+  applied: root-level security requirement, so every one of the 13 operations requires
+    it
   description: >-
-    Per-environment bearer API token in the Authorization header. Obtain
-    separate staging and production tokens from Color.
+    Per-environment API token in the Authorization header. Obtain separate staging
+    and production tokens from Color.
   sources:
-  - openapi/color-eligibility-openapi.yml
+  - openapi/_original/color-external-api-v1-openapi.json
+  note: >-
+    Color declares this as an apiKey-in-header scheme rather than http/bearer even
+    though the value carries the "Bearer " prefix. Tooling that keys off
+    `scheme: bearer` will not recognise it. Verbatim from Color's spec; not
+    corrected here.
+issuance:
+  self_service: false
+  process: Requested from a Color representative during partner onboarding.
+  environments:
+    production: https://api.color.com/api/v1/external
+    staging: https://api.staging.color.com/api/v1/external
+    staging_legacy: https://external.staging.color.com/api/v1
+  rotation_policy: not published
+  expiry: not published
+failure_semantics:
+  status: 403
+  body: Authentication token was not provided or accepted.
+  note: >-
+    Color returns 403, not 401, and sends no WWW-Authenticate challenge. An agent
+    branching on 401 will never see an auth failure from this API.
+scopes:
+  supported: false
+  note: >-
+    No OAuth and no scope surface. Authorisation is implicit in the token — a token
+    is bound to an organisation and its populations. scopes/ is deliberately not
+    emitted.
 sso:
   protocol: SAML 2.0
   idp_initiated: false
   acs_url: https://colorhealth.kinde.com/login/saml/callback
   sp_initiated_bookmark: https://home.color.com/start-sso?domain=<email_domain>
+  identity_platform: Kinde
   docs: https://docs.color.com/docs/sso-integration
+  note: Portal sign-in only; not usable for API authentication.

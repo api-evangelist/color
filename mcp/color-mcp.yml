@@ -1,0 +1,110 @@
+generated: '2026-08-15'
+method: derived
+status: candidate
+source: openapi/color-external-api-v1-openapi.yml
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: api-key
+  verified: searched
+  note: >-
+    Color ships no MCP server, hosted or local. Searched Color's docs index (all 37
+    pages of https://docs.color.com/llms.txt), the ReadMe API reference, the
+    github.com/color organisation (41 repos, none MCP), and npm/PyPI — no MCP
+    package and no MCP endpoint. The tools below are a CANDIDATE surface DERIVED
+    from Color's own OpenAPI; nobody serves them. auth records what an MCP client
+    would need (the same Color-issued bearer token the REST API requires), not an
+    observed challenge.
+false_lead:
+  host: security.color.com
+  what: >-
+    security.color.com/.well-known/oauth-authorization-server and
+    /.well-known/oauth-protected-resource both return HTTP 200 advertising an MCP
+    resource. They are NOT Color's: issuer and resource are
+    https://app.safebase.io/api/mcp, documented at https://docs.safebase.io/mcp.
+    This is the SafeBase trust-centre platform's own MCP server, served identically
+    on every SafeBase-hosted trust centre, exposing compliance documents rather
+    than any Color API. POSTing tools/list to https://security.color.com/api/mcp
+    returns 403 (Cloudflare) and /mcp returns 404. No MCPServer credit is claimed
+    from it. See well-known/color-well-known.yml.
+server:
+  name: color-external-api
+  transport: null
+  url: null
+tool_count: 13
+tools:
+- name: list_eligibility_entries
+  description: List a population's eligibility entries, cursor-paginated and filterable
+    by population, unique identifier or external id.
+  source_operation: openapi/color-external-api-v1-openapi.yml#eligibility_entries_list
+  action_class: read
+- name: create_eligibility_entry
+  description: Create a single eligibility entry for a population.
+  source_operation: openapi/color-external-api-v1-openapi.yml#eligibility_entries_create
+  action_class: write
+- name: get_eligibility_entry
+  description: Retrieve one eligibility entry by id.
+  source_operation: openapi/color-external-api-v1-openapi.yml#eligibility_entries_read
+  action_class: read
+- name: update_eligibility_entry
+  description: Update an eligibility entry — invalidate a participant, change testing
+    cadence cohort or external id.
+  source_operation: openapi/color-external-api-v1-openapi.yml#eligibility_entries_update
+  action_class: write
+- name: upload_eligibility_list
+  description: Upload a CSV eligibility file for a population; optionally replace the
+    population's whole list.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_eligibility_list
+  action_class: write
+  consequence: >-
+    Destructive when replace=true — removes every eligible participant not present
+    in the uploaded file.
+- name: list_participants
+  description: List participants in a population, page-paginated and filterable by
+    sample activation window.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_participants_list
+  action_class: read
+- name: list_results
+  description: List test results across a population.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_results_list
+  action_class: read
+- name: list_samples
+  description: List samples across a population.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_samples_list
+  action_class: read
+- name: get_sample
+  description: Retrieve one sample by its kit barcode.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_samples_read
+  action_class: read
+- name: list_self_reported_results
+  description: List self-reported results, filterable by reported-at and test-date
+    windows.
+  source_operation: openapi/color-external-api-v1-openapi.yml#populations_self_reported_results_list
+  action_class: read
+- name: accession_sample
+  description: Record that a sample arrived at the lab. Idempotent — a repeat call
+    does not modify status.
+  source_operation: openapi/color-external-api-v1-openapi.yml#samples_accession_create
+  action_class: write
+- name: report_sample_result
+  description: Record a test result for a sample. Idempotent on (assay, completion
+    time).
+  source_operation: openapi/color-external-api-v1-openapi.yml#samples_results_create
+  action_class: write
+- name: destroy_sample
+  description: Record that an unapproved sample is being destroyed by the lab. Idempotent.
+  source_operation: openapi/color-external-api-v1-openapi.yml#samples_destroy_create
+  action_class: write
+  consequence: Irreversible physical action; rejected with 400 if the sample is approved
+    for processing.
+caveats:
+- >-
+  Every operation here touches identified patient data (names, dates of birth, ZIP
+  codes, test results). Any real MCP exposure of this API is a HIPAA-covered
+  surface and would need consent, minimum-necessary scoping and audit logging that
+  the REST contract does not currently express.
+- >-
+  Tool names are API Evangelist's, not Color's. Input schemas are exactly the
+  parameters and request bodies in Color's published OpenAPI.

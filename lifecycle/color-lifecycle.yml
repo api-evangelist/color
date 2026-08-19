@@ -1,23 +1,72 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
-source: https://docs.color.com
+source: https://docs.color.com/reference
 versioning:
   scheme: uri-path
   current: v1
+  base_path: /api/v1/external
   docs: https://docs.color.com/docs/getting-started-with-color-apis
+  note: >-
+    Color's docs market the newer eligibility endpoints as the "Eligibility V2 API"
+    (https://docs.color.com/docs/eligibility-v2-api) but the URI version never
+    changed — they are served from the same /api/v1/external base path as
+    everything else. The product version and the contract version disagree.
 deprecation:
   policy_url: null
-  sunset_header: unknown
-  notes: No formal deprecation/sunset policy is published in Color's public docs.
+  sunset_header: false
+  deprecation_header: false
+  notes: >-
+    No formal deprecation or sunset policy is published anywhere in Color's docs,
+    and no RFC 8594 Sunset/Deprecation headers appear in the contract. No operation
+    in the published OpenAPI is marked deprecated: true.
 sla:
   url: null
   uptime_target: null
-status_page: null
-status_page_notes: >-
-  No live provider-operated status page found. colorhealth.statuspage.io resolves
-  to Atlassian's generic Statuspage marketing page (subdomain not provisioned),
-  so no StatusPage pointer is emitted.
+  notes: No public SLA. Commercial terms are per-contract.
+status_page:
+  url: null
+  notes: >-
+    No provider-operated status page. status.color.com does not resolve.
+    colorhealth.statuspage.io answers HTTP 200 but serves Atlassian's generic
+    Statuspage marketing page (<title>Real-Time Incident Communication with
+    Statuspage | Atlassian</title>) — the subdomain was never provisioned. No
+    StatusPage pointer is emitted.
+roadmap:
+  url: null
+  notes: >-
+    No roadmap page. www.color.com/roadmap returns HTTP 200 but renders the
+    homepage (soft-404). No Roadmap pointer is emitted.
 changelog:
   url: https://docs.color.com/changelog
   artifact: changelog/color-changelog.yml
+  staleness: >-
+    Live but dormant — the most recent entry is over two years old, and every entry
+    is about dashboards rather than the API.
 deprecated_operations: []
+decay_signals:
+- signal: changelog-dormant
+  detail: Newest changelog entry is "over 2 years ago"; nothing about the API itself.
+- signal: contract-stale
+  detail: >-
+    The published OpenAPI still describes a COVID-19-era surface — SARS-CoV-2 result
+    significance enums, vaccination_status on participants, testing-cadence cohorts —
+    while Color's current product is virtual cancer care.
+- signal: docs-updated
+  detail: >-
+    Not everything is stale: the file-transfer guides were updated in 2026
+    (receiving-color-data 2026-05-29, sending-claims-data-member-events 2026-05-15).
+    The SFTP/CSV surface is maintained; the REST contract is not.
+- signal: no-sdk-no-cli
+  detail: No client library or CLI has ever been published in any registry.
+evidence:
+- url: https://colorhealth.statuspage.io
+  status: 200
+  note: Atlassian marketing page, not a Color status page
+- url: https://status.color.com
+  status: 0
+  note: does not resolve
+- url: https://www.color.com/roadmap
+  status: 200
+  note: soft-404 to the homepage
+- url: https://docs.color.com/changelog
+  status: 200

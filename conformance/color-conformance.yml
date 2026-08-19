@@ -1,0 +1,112 @@
+generated: '2026-08-15'
+method: searched
+source: https://security.color.com/
+derived_from: openapi/_original/color-external-api-v1-openapi.json
+docs: https://docs.color.com/reference
+standards:
+- id: openapi-3.0
+  conforms: true
+  evidence: >-
+    Color publishes an OpenAPI 3.0.0 document, served from the ReadMe API registry
+    that docs.color.com/reference renders (oasPublicUrl @color/v1.0).
+- id: openapi-3.1
+  conforms: false
+  evidence: Published document declares openapi 3.0.0.
+- id: hl7-834
+  conforms: true
+  evidence: >-
+    Color accepts ANSI X12 834 benefit enrollment and maintenance files as an
+    eligibility format alongside CSV — https://docs.color.com/docs/834-eligibility-file
+- id: hipaa
+  conforms: true
+  evidence: >-
+    HIPAA listed as a compliance program in Color's trust centre, with a HIPAA
+    report available on request — https://security.color.com/
+- id: soc2-type-ii
+  conforms: true
+  evidence: SOC 2 Type II report listed as a requestable document in the trust centre.
+- id: iso-27001
+  conforms: true
+  evidence: '"ISO 27001:2013 Stage 1 & Stage 2" listed in the trust centre.'
+- id: csa-star
+  conforms: true
+  evidence: CSA STAR listed in the trust centre; CAIQ self-assessment published.
+- id: ccpa
+  conforms: true
+  evidence: CCPA listed as a privacy program in the trust centre.
+- id: fisma-moderate
+  conforms: true
+  evidence: FISMA Moderate listed in the trust centre.
+- id: hecvat
+  conforms: true
+  evidence: HECVAT Full questionnaire published in the trust centre.
+- id: saml-2.0
+  conforms: true
+  evidence: >-
+    SAML 2.0 SSO for the partner portal, ACS
+    https://colorhealth.kinde.com/login/saml/callback —
+    https://docs.color.com/docs/sso-integration
+- id: rfc6750-bearer
+  conforms: partial
+  evidence: >-
+    Tokens are sent as "Authorization: Bearer <token>", but the OpenAPI declares the
+    scheme as apiKey-in-header rather than http/bearer, and authentication failures
+    return 403 instead of the RFC 6750 401 + WWW-Authenticate challenge.
+- id: oauth2
+  conforms: false
+  evidence: >-
+    No OAuth flows. Static per-environment bearer tokens issued by Color. The
+    OAuth metadata served at security.color.com belongs to SafeBase, not Color.
+- id: oidc
+  conforms: false
+  evidence: No OpenID Connect discovery on any Color-operated host.
+- id: fhir
+  conforms: false
+  evidence: >-
+    No FHIR resource shapes, no /metadata CapabilityStatement, no
+    /.well-known/smart-configuration. Color's clinical data is exposed as bespoke
+    JSON (ResultApi, SampleApi, ParticipantStatusApi) and as CSV over SFTP.
+- id: smart-on-fhir
+  conforms: false
+  evidence: No SMART launch or scopes; not an EHR-facing API.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    No application/problem+json. Errors are undescribed JSON with no schema — see
+    errors/color-problem-types.yml.
+- id: rfc8594-sunset
+  conforms: false
+  evidence: No Sunset or Deprecation headers and no published deprecation policy.
+- id: idempotency-key
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header. Three lab operations are documented as
+    server-side idempotent; see conventions/color-conventions.yml.
+- id: pagination
+  conforms: true
+  evidence: >-
+    Every list operation paginates — cursor on /eligibility/entries, page number on
+    the /populations/* lists — with next/previous/results envelopes.
+- id: scim
+  conforms: false
+  evidence: No SCIM 2.0 paths; eligibility is file- and entry-based, not SCIM.
+- id: asyncapi
+  conforms: false
+  evidence: >-
+    No event surface at all. Return data is scheduled CSV over SFTP, not webhooks
+    or streams.
+- id: json-api
+  conforms: false
+  evidence: Plain JSON; no JSON:API media type or document structure.
+- id: odata
+  conforms: false
+- id: psd2
+  conforms: false
+  evidence: Not a financial API.
+notes: >-
+  Compliance entries are read from the control and document titles Color publishes
+  in its SafeBase trust centre; the underlying reports are NDA-gated, so they are
+  Color's assertions rather than attestations verified here. Protocol entries are
+  derived from Color's own published OpenAPI. The most notable healthcare finding
+  is the absence of FHIR: Color is a CLIA-lab-backed clinical provider whose
+  partner API exposes results, samples and participants entirely in bespoke shapes.

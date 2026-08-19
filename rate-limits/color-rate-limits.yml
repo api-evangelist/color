@@ -1,0 +1,34 @@
+generated: '2026-08-15'
+method: searched
+source: https://docs.color.com/reference
+limit_count: 0
+limits: []
+headers: []
+exhaustion_status: null
+retry_after: false
+findings:
+  documented: false
+  detail: >-
+    Color publishes no rate limits. Searched the ReadMe API reference, all 37 pages
+    of the documentation index (https://docs.color.com/llms.txt) and the published
+    OpenAPI: no rate-limit numbers, no X-RateLimit-* or RateLimit-* response
+    headers, no Retry-After, and no 429 response on any of the 13 operations. The
+    only occurrences of "429" in the docs are CPT procedure codes (99429).
+  agent_impact: >-
+    An agent has no ceiling to plan against and no runtime signal to back off on.
+    The only implicit bound in the contract is page_size, capped at 500 on the list
+    operations.
+pointer_withheld:
+  type: RateLimits
+  reason: >-
+    rate_limit_signal awards half credit for the mere presence of a RateLimits
+    pointer. This file records an absence, so wiring the pointer would pay points
+    for limits Color does not publish. The artifact is kept as evidence of the
+    search; the pointer is deliberately not emitted.
+evidence:
+- url: https://docs.color.com/reference
+  status: 200
+- url: https://docs.color.com/llms.txt
+  status: 200
+- url: https://dash.readme.com/api/v1/api-registry/105r2r3yl3ue1mng
+  status: 200

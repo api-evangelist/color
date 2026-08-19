@@ -1,17 +1,87 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
 probe: true
 source: https://security.color.com/
 url: https://security.color.com/
+platform: SafeBase
 certifications:
 - SOC 2
+- SOC 2 Type II
 - HIPAA
+- ISO 27001:2013
 - CSA STAR
+- CCPA
+- FISMA Moderate
+questionnaires:
+- CAIQ
+- HECVAT Full
+- VSA Full
+security_ratings:
+- BitSight
+- Black Kite
+- CyberVadis
+- SecurityScorecard
+- UpGuard
+- RiskRecon
+- ImmuniWeb
+- Qualys SSL Labs
+- MDN Observatory
+- CryptCheck
+- CIS Score
+requestable_documents:
+- SOC 2 Type II Report
+- HIPAA Report
+- Pentest Report
+- Network Diagram
+- Security Whitepaper
+- Privacy Policy
+- Terms of Service
+- Subprocessors
+control_domains:
+- Access Control
+- Application Penetration Testing
+- Audit Logging
+- BC/DR
+- Change Management
+- Code Analysis
+- Credential Management
+- Data Backups
+- Data Erasure
+- Encryption-at-rest
+- Encryption-in-transit
+- Endpoint Detection & Response
+- Incident Response
+- Multi-Factor Authentication
+- Physical Security
+- Responsible Disclosure
+- Risk Management
+- Role-Based Access Control
+- Separate Production Environment
+- Software Development Lifecycle
+- Threat Detection
+- Vulnerability & Patch Management
+hosting:
+- Amazon Web Services
+- Google Cloud Platform
+notes: >-
+  Certification, questionnaire and control names are read verbatim from the titles
+  Color's SafeBase-hosted trust centre publishes. The underlying reports (SOC 2
+  Type II, HIPAA, pentest) sit behind an NDA request form, so these are Color's
+  own assertions rather than independently verified attestations. The Responsible
+  Disclosure control is broken out into
+  security/color-vulnerability-disclosure.yml.
 evidence:
 - source: https://security.color.com/
+  status: 200
   keywords:
   - soc 2
-  - soc2
+  - soc 2 type ii report
   - hipaa
-  - trust center
+  - iso 27001:2013 stage 1 & stage 2
   - csa star
+  - caiq
+  - hecvat full
+  - vsa full
+  - ccpa
+  - fisma moderate
+  - responsible disclosure

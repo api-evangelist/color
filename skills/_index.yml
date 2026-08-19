@@ -1,8 +1,42 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: generated
+source: openapi/color-external-api-v1-openapi.yml
+note: >-
+  Four packaged Agent Skills covering Color's External API V1. Every operationId
+  referenced below is verified against Color's published OpenAPI; the three
+  samples_* identifiers are assigned in overlays/color-external-api-v1-overlay.yaml
+  because Color's spec leaves those operations unnamed.
+skill_count: 4
 skills:
 - file: color-eligibility-upload.md
-  name: Upload a Color eligibility list
-  api: openapi/color-eligibility-openapi.yml
+  name: Upload a Color eligibility file
+  api: openapi/color-external-api-v1-openapi.yml
   operations:
-  - uploadEligibilityList
+  - populations_eligibility_list
+- file: color-eligibility-entry-management.md
+  name: Manage Color eligibility entries one at a time
+  api: openapi/color-external-api-v1-openapi.yml
+  operations:
+  - eligibility_entries_list
+  - eligibility_entries_create
+  - eligibility_entries_read
+  - eligibility_entries_update
+- file: color-population-reporting.md
+  name: Pull participant, sample and result data for a Color population
+  api: openapi/color-external-api-v1-openapi.yml
+  operations:
+  - populations_participants_list
+  - populations_samples_list
+  - populations_samples_read
+  - populations_results_list
+  - populations_self_reported_results_list
+- file: color-lab-sample-lifecycle.md
+  name: Report lab sample events to Color (LIMS integration)
+  api: openapi/color-external-api-v1-openapi.yml
+  operations:
+  - samples_accession_create
+  - samples_results_create
+  - samples_destroy_create
+coverage:
+  operations_total: 13
+  operations_covered: 13

@@ -37,3 +37,8 @@
 - [New Dashboard](https://docs.color.com/changelog/new-dashboard.md)
 - [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-15.md)
 - [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-14.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-13.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-12.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-11.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-10.md)
+- [Dashboard Improvements](https://docs.color.com/changelog/dashboard-improvements-9.md)

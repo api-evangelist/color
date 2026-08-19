@@ -1,0 +1,55 @@
+generated: '2026-08-15'
+method: searched
+source: >-
+  npm registry search, PyPI JSON API, github.com/color repository listing, and
+  every page in Color's docs index (https://docs.color.com/llms.txt)
+package_count: 0
+sdk_count: 0
+packages: []
+findings:
+  api_client_libraries: none
+  note: >-
+    Color publishes no first-party client library for the External API V1 in any
+    registry. Its own getting-started guide teaches the API with Postman and raw
+    HTTP requests rather than an SDK, and the word "SDK" does not appear on any
+    of the 37 pages in Color's documentation index.
+registries_checked:
+- registry: npm
+  query: '"color health api", "colorhealth", scope @color'
+  result: no first-party package; the @color npm scope is unclaimed (404) and every
+    keyword hit belongs to unrelated terminal/colour-space libraries
+- registry: pypi
+  query: clrenv, clrypt, clrsvsim, color-health, color
+  result: >-
+    404 for clrenv, clrypt, clrsvsim and color-health. The names "clr" and "color"
+    ARE taken on PyPI but by unrelated third parties (lmittmann/clr 1.0.3,
+    htaslan/color 0.1) — Color's own tools of the same name were never published
+    there.
+- registry: maven-central
+  result: not searched — Color ships no JVM surface
+- registry: nuget
+  result: not searched — Color ships no .NET surface
+- registry: rubygems
+  result: not searched — Color ships no Ruby surface
+- registry: crates.io
+  result: not searched — Color ships no Rust surface
+- registry: pkg.go.dev
+  result: not searched — Color ships no Go surface
+github_org:
+  url: https://github.com/color
+  public_repos: 41
+  api_clients: 0
+  note: >-
+    The org is real and active but holds no API client. Its content is legacy
+    Color Genomics bioinformatics work (aldy, cnvkit, clrsvsim, hisat-genotype,
+    exac_browser), Angular-era front-end modules, and internal Python developer
+    tools (clr, clrenv, clrypt) — the tools are first-party but they are not API
+    clients and none of them is published to a package registry. 24 of the 41
+    repos are archived.
+pointer_withheld:
+  type: SDKs
+  reason: >-
+    sdk_count reads the SDKs pointer as "the provider ships a client library for
+    this API". Color ships none, so no SDKs pointer is emitted. The internal
+    Python tools on the GitHub org are first-party but unrelated to the API and
+    unpublished.

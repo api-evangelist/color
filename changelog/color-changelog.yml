@@ -1,26 +1,50 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
 source: https://docs.color.com/changelog
 scheme: dated-entries
 current_version: v1
+entry_count: 10
 notes: >-
-  Color publishes a dated changelog on its ReadMe docs site. Entries are
-  product/dashboard oriented and the public changelog exposes only relative
-  dates (no absolute timestamps); the most recent entry is roughly two years
-  old. Recent window captured below from the changelog index.
+  Color publishes a dated changelog on its ReadMe docs site. The public index
+  exposes only relative dates (no absolute timestamps), the newest entry is over
+  two years old, and every entry is about the Color dashboards rather than the
+  API — there is no API changelog. The full list below is taken from
+  https://docs.color.com/llms.txt, which enumerates the changelog in full.
 entries:
 - title: New Dashboards and Changes to Care Programs Dashboards
   relative_date: over 2 years ago
   category: dashboards
+  url: https://docs.color.com/changelog/new-dashboards-and-changes-to-care-programs-dashboards
 - title: Dashboard Improvements
   relative_date: about 3 years ago
   category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-16
 - title: New Dashboard
   relative_date: about 3 years ago
   category: dashboards
+  url: https://docs.color.com/changelog/new-dashboard
 - title: Dashboard Improvements
   relative_date: over 3 years ago
   category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-15
 - title: Dashboard Improvements
   relative_date: over 3 years ago
   category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-14
+- title: Dashboard Improvements
+  category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-13
+- title: Dashboard Improvements
+  category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-12
+- title: Dashboard Improvements
+  category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-11
+- title: Dashboard Improvements
+  category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-10
+- title: Dashboard Improvements
+  category: dashboards
+  url: https://docs.color.com/changelog/dashboard-improvements-9
+breaking_changes: []
+api_entries: 0

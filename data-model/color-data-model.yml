@@ -1,0 +1,212 @@
+generated: '2026-08-15'
+method: derived
+source: openapi/_original/color-external-api-v1-openapi.json
+docs: https://docs.color.com/reference
+summary: >-
+  Color's External API V1 models one domain: a covered POPULATION inside a
+  customer ORGANIZATION, the ELIGIBILITY ENTRIES that make a person eligible, the
+  PARTICIPANT that person becomes once enrolled, the SAMPLES they activate, and
+  the RESULTS those samples produce. Population and organization are string keys,
+  not addressable resources — there is no /populations or /organizations resource
+  to read, so an agent must be told the population name out of band.
+entity_count: 13
+identifiers:
+- field: id
+  entity: EligibilityEntry
+  format: UUID
+  note: Also usable as the path parameter on the retrieve/update endpoints.
+- field: unique_identifier
+  entity: EligibilityEntry
+  format: customer-supplied
+  note: >-
+    Paired with identifier_type (email, employee_id, …). This is the join key the
+    customer also puts on claims and member-event files.
+- field: external_id
+  entity: EligibilityEntry, ParticipantStatusApi, PatientProfileResultApi
+  format: customer-supplied
+  note: University or employer ID number; passed through so the customer can match
+    results.
+- field: participant_id
+  entity: ParticipantStatusApi, SampleApi, SelfReportedResultApi
+  format: opaque string
+  note: Color's public patient ID; the documented way to query a participant from a
+    sample.
+- field: kit_barcode
+  entity: SampleApi, SampleResultApi, SampleParticipantStatusApi
+  format: string
+  note: Barcode printed on the collection kit; the read-side sample key.
+- field: sample_barcode
+  entity: path parameter on the three lab operations
+  format: '^D-\d{10}$'
+  note: >-
+    The write-side sample key, and the only regex-constrained identifier in the
+    contract. Published as a pattern in the spec.
+- field: accession_number
+  entity: accession response
+  format: 'C-#####'
+  note: Assigned by Color when a sample is accessioned, e.g. "C-12345".
+entities:
+- name: EligibilityEntry
+  kind: resource
+  addressable: true
+  operations: [eligibility_entries_list, eligibility_entries_create, eligibility_entries_read,
+    eligibility_entries_update]
+  note: The only fully CRUD-shaped entity in the API (no delete — invalidation is a
+    field, invalidated_at).
+- name: EligibilityEntryUpdate
+  kind: request-variant
+  addressable: false
+  note: Same field set as EligibilityEntry with no required fields; the PUT body.
+- name: EligibilityListResponse
+  kind: response
+  addressable: false
+  operations: [populations_eligibility_list]
+- name: EligiblityListRowCounts
+  kind: value-object
+  addressable: false
+  note: created/updated/invalidated counts. Spelled "Eligiblity" in Color's spec —
+    preserved verbatim.
+- name: ParticipantStatusApi
+  kind: resource
+  addressable: false
+  operations: [populations_participants_list]
+  note: >-
+    List-only. Carries the widest PHI surface in the contract — name, birthday,
+    sex, email, phone, address, race/ethnicity, vaccination status.
+- name: SampleParticipantStatusApi
+  kind: embedded
+  addressable: false
+  note: The sample projection embedded inside a participant.
+- name: SampleApi
+  kind: resource
+  addressable: true
+  operations: [populations_samples_list, populations_samples_read]
+  note: Read by kit_barcode.
+- name: SampleResultApi
+  kind: embedded
+  addressable: false
+  note: The sample projection embedded inside a result.
+- name: ResultApi
+  kind: resource
+  addressable: false
+  operations: [populations_results_list]
+- name: SelfReportedResultApi
+  kind: resource
+  addressable: false
+  operations: [populations_self_reported_results_list]
+- name: PatientProfileResultApi
+  kind: embedded
+  addressable: false
+  note: Patient demographics embedded in results and self-reported results.
+- name: CycleThresholdValue
+  kind: value-object
+  addressable: false
+  note: gene + value pair; PCR cycle-threshold detail on a result.
+- name: Address
+  kind: value-object
+  addressable: false
+relationships:
+- from: EligibilityEntry
+  to: population
+  type: belongs_to
+  via: population
+  binding: string-key
+  note: population is a plain string; there is no population resource to dereference.
+- from: ParticipantStatusApi
+  to: population
+  type: belongs_to
+  via: population
+  binding: string-key
+- from: ParticipantStatusApi
+  to: population
+  type: has_many
+  via: populations
+  note: A participant can belong to several populations at once.
+- from: ParticipantStatusApi
+  to: Address
+  type: has_one
+  via: address
+  binding: $ref
+- from: ParticipantStatusApi
+  to: SampleParticipantStatusApi
+  type: has_many
+  via: samples
+  binding: $ref
+  note: Activated samples, ordered most recent first.
+- from: SampleApi
+  to: ParticipantStatusApi
+  type: belongs_to
+  via: participant_id
+  binding: id-reference
+  note: >-
+    Documented in the spec as "the public id of the participant, can be used to
+    query participants".
+- from: ResultApi
+  to: PatientProfileResultApi
+  type: has_one
+  via: patient
+  binding: $ref
+- from: ResultApi
+  to: SampleResultApi
+  type: has_one
+  via: sample
+  binding: $ref
+- from: ResultApi
+  to: CycleThresholdValue
+  type: has_many
+  via: cycle_thresholds
+  binding: $ref
+- from: ResultApi
+  to: population
+  type: belongs_to
+  via: population
+  binding: string-key
+- from: ResultApi
+  to: organization
+  type: belongs_to
+  via: organization
+  binding: string-key
+- from: SelfReportedResultApi
+  to: PatientProfileResultApi
+  type: has_one
+  via: patient
+  binding: $ref
+- from: SelfReportedResultApi
+  to: ParticipantStatusApi
+  type: belongs_to
+  via: participant_id
+  binding: id-reference
+- from: EligibilityListResponse
+  to: EligiblityListRowCounts
+  type: has_one
+  via: results
+  binding: $ref
+lifecycle:
+  sample:
+    states: [activated, accessioned, approved_for_processing, resulted, cancelled,
+      destroyed]
+    timestamps: [activated_at, received_at_lab, collected_at, resulted_at, cancelled_at]
+    transitions:
+    - operation: samples_accession_create
+      effect: records arrival at the lab
+    - operation: samples_results_create
+      effect: records a result; requires the sample to be accessioned and approved
+    - operation: samples_destroy_create
+      effect: records destruction; rejected if the sample is approved for processing
+  participant:
+    compliance_state: [untested, compliant, activated_not_accessioned, overdue, positive]
+    note: Enumerated in prose in the ParticipantStatusApi description, not as a schema
+      enum.
+phi:
+  contains_phi: true
+  fields: [first_name, middle_name, last_name, birthday, sex, email, phone_number,
+    address, race_ethnicity, vaccination_status, significance, cycle_thresholds]
+  note: >-
+    Every read operation on this API returns identified patient data. This is a
+    HIPAA-covered surface; treat the whole data model as minimum-necessary scoped.
+gaps:
+- No population or organization resource — both are string keys with no read endpoint.
+- No delete on any entity; eligibility entries are soft-invalidated via invalidated_at.
+- >-
+  ParticipantStatusApi, ResultApi and SelfReportedResultApi are list-only; there is
+  no by-id read for a single participant or result.

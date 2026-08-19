@@ -1,22 +1,67 @@
-generated: '2026-07-18'
+generated: '2026-08-15'
 method: searched
 source: https://docs.color.com/docs/getting-started-with-color-apis
 environments:
   live:
     name: Production
-    base_url: https://api.color.com
+    base_url: https://api.color.com/api/v1/external
   test:
     name: Staging
-    base_url: https://external.staging.color.com
+    base_url: https://api.staging.color.com/api/v1/external
+    legacy_base_url: https://external.staging.color.com/api/v1
     notes: >-
-      Color provides a separate staging environment for integration testing.
-      Staging requires its own staging API token (distinct from production).
+      Color documents two staging hosts in two different guides: the Eligibility V2
+      page names https://api.staging.color.com/api/v1/external, while the older
+      getting-started tutorial walks partners through
+      https://external.staging.color.com/api/v1/populations/eligibility_list. Both
+      are published; neither guide mentions the other. external.staging.color.com
+      returns 403 to anonymous requests. "The staging environment only contains
+      fake data."
 key_separation:
   model: separate per-environment bearer tokens
-  notes: Staging and production API tokens are issued separately.
-test_values:
-  published: false
+  self_service: false
   notes: >-
-    Color does not publish magic/test identifiers, test files, or fixture
-    tooling in its public docs; test data is coordinated during partner
-    onboarding. No test values fabricated.
+    Staging and production tokens are issued separately, by request: "A Color
+    staging API key (please reach out to your Color representative for a staging
+    key)". There is no key prefix convention published that would let a caller tell
+    a test token from a live one.
+test_values:
+  published: partial
+  fixtures:
+  - name: Sample eligibility file
+    type: spreadsheet
+    url: https://docs.google.com/spreadsheets/d/1LZ8oIodbXiH26L0dtrCTq8tX_aZCraJlGD4ieSmqOqo/edit#gid=138632194
+    note: >-
+      Color-provided sample eligibility file linked from the getting-started guide,
+      with the documented column set (external_id, email, testing_cadence_cohort).
+  - name: Medical Claims CSV template
+    type: csv-template
+    url: https://drive.google.com/file/d/1N6SFUx0FxOlykoF0S26Zq2dxeO-8lCPe/view
+    note: Linked from https://docs.color.com/docs/sending-claims-data-member-events
+  formats:
+  - name: sample barcode
+    pattern: ^D-\d{10}$
+    note: Published as a regex in the OpenAPI; the only format constraint a caller
+      can synthesise test values against.
+  - name: accession number
+    example: C-12345
+    note: Example value published in the accession response schema.
+  magic_identifiers: none
+  test_clocks: false
+  triggers: false
+  notes: >-
+    Color publishes no magic/test identifiers, no fixture-trigger tooling and no
+    time simulation. Beyond the two linked file templates and the barcode pattern,
+    test data is coordinated with Color during partner onboarding. No test values
+    fabricated here.
+tooling:
+  console: false
+  playground: >-
+    The ReadMe reference at https://docs.color.com/reference ships an interactive
+    "Try It" panel per operation, but it needs a real Color-issued token.
+  postman:
+    published_collection: false
+    note: >-
+      The getting-started guide teaches the API through Postman step by step, but
+      Color publishes no public Postman collection or workspace. The collections/
+      files in this repo are API Evangelist-generated from the OpenAPI, not Color's.

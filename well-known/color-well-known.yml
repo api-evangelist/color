@@ -1,12 +1,26 @@
-generated: '2026-07-18'
-method: searched
-notes: >-
-  Probed the /.well-known/ discovery surface on Color's API and web hosts.
-  No well-known discovery documents are published; api.color.com returns clean
-  404s and the www host returns 502 for these paths. Absence recorded as valid
-  data. No raw files saved.
+generated: '2026-08-15'
+method: probed
+source: live HTTP probes of every color.com host in apis.yml + OpenAPI servers[]
+summary: >-
+  Color publishes NO /.well-known/ discovery surface of its own. api.color.com,
+  home.color.com and docs.color.com return 404 for every discovery path;
+  www.color.com / color.com return 502 for the whole /.well-known/ namespace;
+  external.staging.color.com returns 403. The only 200s in the whole probe come
+  from security.color.com — Color's SafeBase-hosted trust centre — and those
+  documents describe SAFEBASE's own MCP resource, not a Color API (see
+  vendor_surface below).
+pointer_withheld:
+  type: WellKnown
+  reason: >-
+    No API-discovery document is served by a host Color operates. The three 200s
+    are SafeBase platform boilerplate whose issuer/resource is
+    https://app.safebase.io/api/mcp, so a WellKnown pointer would credit Color
+    with an agent-discovery entrypoint for its APIs that does not exist. The
+    previous round carried a WellKnown pointer backed by an all-404 probe; it has
+    been removed.
 hosts:
 - host: https://api.color.com
+  note: Production API host (OpenAPI servers[0]).
   documents:
   - path: /.well-known/security.txt
     status: 404
@@ -14,7 +28,35 @@ hosts:
     status: 404
   - path: /.well-known/oauth-authorization-server
     status: 404
-- host: https://color.com
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://docs.color.com
+  note: ReadMe-hosted developer documentation.
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://www.color.com
+  note: >-
+    Marketing site. The whole /.well-known/ namespace answers 502 Bad Gateway
+    (nginx), while ordinary unknown paths soft-200 to the homepage.
   documents:
   - path: /.well-known/security.txt
     status: 502
@@ -26,3 +68,76 @@ hosts:
     status: 502
   - path: /.well-known/ai-plugin.json
     status: 502
+  - path: /.well-known/agent-card.json
+    status: 502
+  - path: /.well-known/agent.json
+    status: 502
+- host: https://home.color.com
+  note: Member/partner portal sign-in host.
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+- host: https://external.staging.color.com
+  note: Staging API host named in Color's getting-started guide; 403s anonymously.
+  documents:
+  - path: /.well-known/security.txt
+    status: 403
+  - path: /.well-known/agent-card.json
+    status: 403
+  - path: /.well-known/agent.json
+    status: 403
+  - path: /.well-known/openid-configuration
+    status: 403
+  - path: /.well-known/oauth-authorization-server
+    status: 403
+- host: https://security.color.com
+  note: >-
+    Color's trust centre, hosted on SafeBase. The 200s below are real JSON
+    documents, but they are SafeBase's, not Color's — see vendor_surface.
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: color-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: color-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: color-oauth-protected-resource.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+vendor_surface:
+  host: security.color.com
+  vendor: SafeBase (trust-centre platform)
+  issuer: https://app.safebase.io/api/mcp
+  protected_resource: https://app.safebase.io/api/mcp
+  documentation: https://docs.safebase.io/mcp
+  belongs_to_provider: false
+  note: >-
+    Every SafeBase-hosted trust centre serves these same three documents; the
+    issuer, authorization/token/registration endpoints and resource all point at
+    app.safebase.io. The MCP resource they advertise is SafeBase's trust-centre
+    MCP server, which exposes Color's compliance documents — it is not a Color
+    API and no MCPServer pointer is emitted for it. Probing
+    https://security.color.com/api/mcp returns 403 (Cloudflare) and
+    https://security.color.com/mcp returns 404.
+security_txt:
+  found: false
+  note: >-
+    No RFC 9116 security.txt on any host. Color does publish a responsible
+    disclosure channel, but only inside the trust centre — see
+    security/color-vulnerability-disclosure.yml. No SecurityTxt pointer emitted.

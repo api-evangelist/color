@@ -1,0 +1,140 @@
+generated: '2026-08-15'
+method: derived
+source: openapi/_original/color-external-api-v1-openapi.json
+docs: https://docs.color.com/reference
+format: untyped
+envelope:
+  media_type: application/json
+  shape: >-
+    Two shapes coexist. The ten eligibility/populations operations describe their
+    4xx body only as prose — "Response body will contain list of all error
+    messages" — with no schema, so an agent cannot branch on it. The three
+    /samples/{sample_barcode}/* lab operations describe an object carrying an
+    `error` property with information about the problem, again without a schema.
+  problem_json: false
+  shared_error_schema: false
+  stable_error_codes: false
+  note: >-
+    No RFC 9457 application/problem+json, no components.schemas error type, and no
+    machine-readable error code registry anywhere in the spec or the 37-page docs
+    index. Every 4xx/5xx response in the contract is a bare status code plus a
+    description string.
+problem_count: 9
+problems:
+- status: 400
+  title: Invalid request
+  detail: Response body will contain list of all error messages.
+  retryable: false
+  source_operations:
+  - eligibility_entries_list
+  - eligibility_entries_create
+  - eligibility_entries_read
+  - eligibility_entries_update
+  - populations_eligibility_list
+  - populations_participants_list
+  - populations_results_list
+  - populations_samples_list
+  - populations_samples_read
+  - populations_self_reported_results_list
+- status: 400
+  title: Sample could not be accessioned
+  detail: >-
+    In some extremely rare cases, it may not be possible for us to mark the sample
+    as accessioned. This can occur if the sample has already been accessioned by a
+    different lab or if there is an internal issue in Color's system. In this case,
+    the response will have a status code of 400 and the response body will have an
+    'error' property with information about the problem.
+  retryable: false
+  remediation: >-
+    Do not retry blindly — a competing lab may already own the sample. Read the
+    `error` property and escalate to Color.
+  source_operations:
+  - samples_accession_create
+- status: 400
+  title: Result could not be recorded
+  detail: |-
+    Result could not be recorded. Potential errors which could be returned with a 400 include:
+    * "Sample {sample_barcode} is not approved for processing"
+    * "Sample {sample_barcode} is not accessioned"
+  retryable: false
+  remediation: Accession the sample first, or confirm it is approved for processing.
+  source_operations:
+  - samples_results_create
+- status: 400
+  title: Sample cannot be destroyed
+  detail: The sample cannot be destroyed since it is approved for processing.
+  retryable: false
+  source_operations:
+  - samples_destroy_create
+- status: 403
+  title: Authentication token was not provided or accepted
+  detail: >-
+    Authentication token was not provided or accepted. Note that Color returns 403,
+    not 401, for missing or bad credentials — an agent branching on 401 will never
+    see it.
+  retryable: false
+  remediation: Supply a valid Color-issued bearer token for the environment you are
+    calling.
+  source_operations:
+  - eligibility_entries_list
+  - eligibility_entries_create
+  - eligibility_entries_read
+  - eligibility_entries_update
+  - populations_eligibility_list
+  - populations_participants_list
+  - populations_results_list
+  - populations_samples_list
+  - populations_samples_read
+  - populations_self_reported_results_list
+- status: 404
+  title: Result could not be retrieved
+  detail: Result could not be retrieved. Please check your query parameters.
+  retryable: false
+  source_operations:
+  - eligibility_entries_read
+  - populations_samples_read
+- status: 404
+  title: Result does not exist
+  detail: Result does not exist.
+  retryable: false
+  source_operations:
+  - eligibility_entries_update
+- status: 404
+  title: Sample not found
+  detail: The sample wasn't found in Color's database (i.e. the barcode was invalid).
+  retryable: false
+  remediation: Barcodes must match the published pattern ^D-\d{10}$.
+  source_operations:
+  - samples_accession_create
+  - samples_results_create
+  - samples_destroy_create
+- status: 500
+  title: Internal error
+  detail: >-
+    "An error has occurred, please try again." on the eligibility/populations
+    operations; "An error has occurred, please try again after a few minutes." on
+    the three lab sample operations.
+  retryable: true
+  remediation: >-
+    Safe to retry on the three /samples/{sample_barcode}/* operations, which Color
+    documents as idempotent. NOT safe to blind-retry eligibility_entries_create or
+    populations_eligibility_list — neither accepts an idempotency key.
+  source_operations:
+  - eligibility_entries_list
+  - eligibility_entries_create
+  - eligibility_entries_read
+  - eligibility_entries_update
+  - populations_eligibility_list
+  - populations_participants_list
+  - populations_results_list
+  - populations_samples_list
+  - populations_samples_read
+  - populations_self_reported_results_list
+  - samples_accession_create
+  - samples_results_create
+  - samples_destroy_create
+gaps:
+- No 401 anywhere — authentication failures are reported as 403.
+- No 429; rate limiting is undocumented (see rate-limits/color-rate-limits.yml).
+- No schema on any error response, so the error envelope is not machine-readable.
+- No error-code registry in the docs; searched all 37 pages of the docs index.
