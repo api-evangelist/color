@@ -57,26 +57,44 @@ tags:
 - Employee Benefits
 apis:
 - aid: color:color-eligibility-api
-  name: Color External API V1
-  description: >-
-    Color's partner-facing REST API — 13 operations over three surfaces:
-    eligibility entries (list/create/read/update plus CSV or ANSI 834 file
-    upload), population reporting (participants, samples, results, self-reported
-    results) and a lab/LIMS sample lifecycle (accession, report result, destroy).
-    Authentication is a Color-issued per-environment bearer token.
+  name: Color Eligibility API
+  description: Eligibility entries and eligibility-file uploads for a population.
   humanURL: https://docs.color.com/reference
   baseURL: https://api.color.com/api/v1/external
   tags:
-  - Eligibility
-  - Populations
-  - Samples
-  - Results
-  - Healthcare
+  - eligibility
   properties:
   - type: OpenAPI
-    url: openapi/color-external-api-v1-openapi.yml
-  - type: Overlay
-    url: overlays/color-external-api-v1-overlay.yaml
+    url: openapi/color-eligibility-api-openapi.yml
+  - type: Documentation
+    url: https://docs.color.com/docs/getting-started-with-color-apis
+  - type: APIReference
+    url: https://docs.color.com/reference
+- aid: color:color-populations-api
+  name: Color Populations API
+  description: >-
+    Read-side queries across a population: participants, results, samples, self-reported results.
+  humanURL: https://docs.color.com/reference
+  baseURL: https://api.color.com/api/v1/external
+  tags:
+  - populations
+  properties:
+  - type: OpenAPI
+    url: openapi/color-populations-api-openapi.yml
+  - type: Documentation
+    url: https://docs.color.com/docs/getting-started-with-color-apis
+  - type: APIReference
+    url: https://docs.color.com/reference
+- aid: color:color-samples-api
+  name: Color Samples API
+  description: 'Lab/LIMS sample lifecycle: accession, result reporting, destruction.'
+  humanURL: https://docs.color.com/reference
+  baseURL: https://api.color.com/api/v1/external
+  tags:
+  - samples
+  properties:
+  - type: OpenAPI
+    url: openapi/color-samples-api-openapi.yml
   - type: Documentation
     url: https://docs.color.com/docs/getting-started-with-color-apis
   - type: APIReference
