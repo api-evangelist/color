@@ -1,0 +1,25 @@
+slug: color
+provider: Color
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Healthcare Providers
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: samples
+  spec_file: color-samples-api-openapi.yml
+  capability_id: BC-2860.10
+  capability_id_l1: BC-2860
+  capability_name: Laboratory Services Management
+  confidence: 0.85
+  evidence: POST /samples/{sample_barcode}/accession 'Record that a sample arrived at the lab'; 'Record
+    a test result for a sample'
+  reason: Lab specimen accessioning, result recording and sample destruction are laboratory services/LIMS
+    operations.

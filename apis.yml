@@ -117,6 +117,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/color-capability-edges.yml
+  name: Color Business Capability Map
 - type: Overlay
   url: overlays/color-external-api-v1-overlay.yaml
 - type: TrustCenter
