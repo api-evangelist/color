@@ -19,7 +19,7 @@ edges:
   capability_id_l1: BC-2860
   capability_name: Laboratory Services Management
   confidence: 0.85
-  evidence: POST /samples/{sample_barcode}/accession 'Record that a sample arrived at the lab'; 'Record
-    a test result for a sample'
-  reason: Lab specimen accessioning, result recording and sample destruction are laboratory services/LIMS
-    operations.
+  evidence: POST /samples/{sample_barcode}/accession 'Record that a sample arrived at the lab'; POST /samples/{sample_barcode}/results
+    'Record a test result for a sample'; POST /samples/{sample_barcode}/destroy
+  reason: Lab-partner specimen accessioning, result recording and specimen disposal — laboratory specimen
+    and LIS operations, i.e. Laboratory Services Management.
