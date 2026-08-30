@@ -74,6 +74,8 @@ apis:
   humanURL: https://docs.color.com/reference
   baseURL: https://api.color.com/api/v1/external
   tags:
+  - Eligibility
+  tags_raw:
   - eligibility
   properties:
   - type: OpenAPI
@@ -89,6 +91,8 @@ apis:
   humanURL: https://docs.color.com/reference
   baseURL: https://api.color.com/api/v1/external
   tags:
+  - Populations
+  tags_raw:
   - populations
   properties:
   - type: OpenAPI
@@ -103,6 +107,8 @@ apis:
   humanURL: https://docs.color.com/reference
   baseURL: https://api.color.com/api/v1/external
   tags:
+  - Samples
+  tags_raw:
   - samples
   properties:
   - type: OpenAPI
