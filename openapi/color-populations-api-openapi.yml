@@ -1,0 +1,1398 @@
+openapi: 3.2.0
+info:
+  title: External API V1 Populations API
+  description: Color Health's External API V1 — the partner-facing REST API behind docs.color.com/reference. It lets benefit administrators and lab/LIMS partners manage eligibility entries for their populations, upload eligibility files, query participants, results, samples and self-reported results, and (for lab partners) accession, report and destroy test samples. Authentication is a Color-issued bearer token supplied in the Authorization header; staging and production use separate tokens.
+  termsOfService: https://www.color.com/tos/
+  contact:
+    email: dev@color.com
+    name: Color Health API Support
+    url: https://docs.color.com/reference
+  license:
+    name: private
+  version: v1
+servers:
+- url: https://api.color.com/api/v1/external
+  description: Production
+security:
+- Bearer: []
+tags:
+- name: populations
+  description: 'Read-side queries across a population: participants, results, samples, self-reported results.'
+paths:
+  /populations/eligibility_list:
+    parameters: []
+    post:
+      operationId: populations_eligibility_list
+      description: Create and/or update eligibility data from file.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                eligibility_file:
+                  description: The csv file containing eligible recipient data.
+                  type: string
+                  format: binary
+                population:
+                  description: The name of the population. This indicates the testing population you are uploading the eligibility data for. Separate requests are needed to add/update each population.
+                  type: string
+                replace:
+                  description: If "true", we remove all existing eligible participants that are not part of the new list. If "false", we append any eligible participants from this list but do not remove existing ones. If the identifier exists already we simply update the external_id/testing_cadence_cohort to the newly provided details. Optional; the default is false if not provided.
+                  type: boolean
+              required:
+              - eligibility_file
+              - population
+        required: true
+      responses:
+        '200':
+          description: Response body will contain JSON object indicating numbers of rows modified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityListResponse'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: Upload an eligibility file for a population
+  /populations/participants:
+    parameters: []
+    get:
+      operationId: populations_participants_list
+      description: List Participants Endpoint
+      parameters:
+      - name: page
+        in: query
+        description: A page number within the paginated result set.
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      - name: page_size
+        in: query
+        description: 'Optional: represents the maximum number of participants to return. This integer should be between 1 (min) and 500 (max) inclusive. By default, 50 participants will be returned.'
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+      - name: populations
+        in: query
+        description: represents your populations - this indicates the testing populations that you are querying participants for. If you do not provide populations, then participants from all of the organization’s populations will be returned.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: latest_sample_activated_at_start
+        in: query
+        description: indicates the earliest (inclusive) activation time of the participant’s most recent sample. Defaults to the earliest activation time if not provided. If provided, only users with samples in this time range will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: latest_sample_activated_at_end
+        in: query
+        description: indicates the datetime of latest (exclusive) activation time of the participant’s most recent sample. Defaults to the time of the request. If provided, only users with samples in this time range will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: sample_activated_at_start
+        in: query
+        description: indicates the earliest (inclusive) activation time of the returned samples. Defaults to the earliest activation time if not provided. If provided, only samples in this time range will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: sample_activated_at_end
+        in: query
+        description: indicates the datetime of latest (exclusive) activation time of the returned samples. Defaults to the time of the request. If provided, only samples in this time range will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: participant_ids
+        in: query
+        description: array of strings representing participant ids of participants. If an array of participant ids is provided, only participants with participant ids in the array will be returned. Query for a maximum of 50 external ids per request.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: external_ids
+        in: query
+        description: array of strings representing external ids of participants. These external ids are provided via eligibility file uploads or via the Eligibility List API. If an array of external ids is provided, only participants with external ids in the array will be returned. Query for a maximum of 50 external ids per request.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: vaccination_statuses
+        in: query
+        description: 'array of strings representing vaccination statuses of participants. Must be one of the following: fully_vaccinated, partially_vaccinated, not_vaccinated_but_intend_to, not_vaccinated_and_do_not_intend_to, not_vaccinated, declined_to_answer. If an array of vaccination statuses is provided, only consenting participants with vaccination statuses in the array will be returned.'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - fully_vaccinated
+            - partially_vaccinated
+            - not_vaccinated_but_intend_to
+            - not_vaccinated_and_do_not_intend_to
+            - not_vaccinated
+            - declined_to_answer
+      - name: vaccine_status_last_updated_at_start
+        in: query
+        description: indicates the earliest (inclusive) last update time for a vaccination status.  If provided, only samples where the vaccination status was updated after this time will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: vaccine_status_last_updated_at_end
+        in: query
+        description: indicates the latest (inclusive) last update time for a vaccination status.  If provided, only samples where the vaccination status was updated before this time will be returned.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: ordering
+        in: query
+        description: 'Optional: query parameter in which participants can be ordered by. By default, participants are ordered by latest created_at time.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - created_at
+          - -created_at
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                required:
+                - count
+                - results
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the next page. Will be null if currently on the last page.
+                  previous:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the previous page. Will be null if currently on the first page.
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ParticipantStatusApi'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: List participants
+  /populations/results:
+    parameters: []
+    get:
+      operationId: populations_results_list
+      description: List Results Endpoint
+      parameters:
+      - name: ordering
+        in: query
+        description: 'Optional: query parameter in which results can be ordered by. By default, results are ordered by latest released_at time.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - released_at
+          - -released_at
+      - name: cursor
+        in: query
+        description: The pagination cursor value.
+        required: false
+        schema:
+          type: string
+      - name: page_size
+        in: query
+        description: 'Optional: represents the maximum number of results to return. This integer should be between 1 (min) and 500 (max) inclusive. By default, 50 results will be returned.'
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+      - name: populations
+        in: query
+        description: represents your populations - this indicates the testing populations that you are querying results for. If you do not provide populations, then results from all of the organization’s populations will be returned.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: released_at_start
+        in: query
+        description: indicates the earliest (inclusive) release date of results. Earliest accepted datetime is 2 weeks before the time of the request. Defaults to 2 weeks before the time of the request if not provided.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: released_at_end
+        in: query
+        description: indicates the datetime of the most recent (exclusive) release date. Defaults to the time of the request.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: kit_barcodes
+        in: query
+        description: represents sample barcodes. If an array of barcodes is provided, only results with barcodes in the array will be returned. Query for a maximum of 50 barcodes per request.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            pattern: ^D-\d{10}$
+      - name: test_significance
+        in: query
+        description: string indicating the desired test significance of the results. If the query parameter is included, but does not contain one of the accepted values, we will return 400 Bad request.
+        required: false
+        schema:
+          type: string
+          enum:
+          - detected
+          - not_detected
+          - inconclusive
+          - failed
+      - name: organizations
+        in: query
+        description: this can only be used with customer accounts. This indicates the organizations that you are querying results for. If you do not provide organizations, then results from all organizations will be returned.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: external_ids
+        in: query
+        description: array of strings representing external ids of participants. These external ids are provided via eligibility file uploads or via the Eligibility List API. If an array of external ids is provided, only results for participants matching the external ids in the array will be returned. Query for a maximum of 50 external ids per request.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                required:
+                - results
+                type: object
+                properties:
+                  next:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the next page. Will be null if currently on the last page.
+                  previous:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the previous page. Will be null if currently on the first page.
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ResultApi'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: List results
+  /populations/samples:
+    parameters: []
+    get:
+      operationId: populations_samples_list
+      description: List Samples Endpoint
+      parameters:
+      - name: ordering
+        in: query
+        description: 'Optional: query parameter in which samples can be ordered by. By default, samples are ordered by latest activated_at time.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - activated_at
+          - -activated_at
+      - name: cursor
+        in: query
+        description: The pagination cursor value.
+        required: false
+        schema:
+          type: string
+      - name: page_size
+        in: query
+        description: 'Optional: represents the maximum number of samples to return. This integer should be between 1 (min) and 500 (max) inclusive. By default, 50 samples will be returned.'
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+      - name: populations
+        in: query
+        description: represents your populations - this indicates the testing populations that you are querying samples for. If you do not provide populations, then samples from all of the organization’s populations will be returned.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: activated_at_start
+        in: query
+        description: indicates the earliest (inclusive) activation time of the returned samples. Defaults to the the activation time two weeks ago if not provided.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: activated_at_end
+        in: query
+        description: indicates the datetime of latest (exclusive) activation time of the returned samples. Defaults to the time of the request.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: kit_barcodes
+        in: query
+        description: represents sample barcodes. If an array of barcodes is provided, only samples with barcodes in the array will be returned. Query for a maximum of 50 barcodes per request.
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            pattern: ^D-\d{10}$
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                required:
+                - results
+                type: object
+                properties:
+                  next:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the next page. Will be null if currently on the last page.
+                  previous:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the previous page. Will be null if currently on the first page.
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SampleApi'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: List samples
+  /populations/samples/{kit_barcode}:
+    parameters:
+    - name: kit_barcode
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      operationId: populations_samples_read
+      description: Retrieve Samples Endpoint
+      parameters:
+      - name: kit_barcode
+        in: path
+        description: Barcode included in the test collection kit
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleApi'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '404':
+          description: Result could not be retrieved. Please check your query parameters.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: Retrieve a sample by kit barcode
+  /populations/self_reported_results:
+    parameters: []
+    get:
+      operationId: populations_self_reported_results_list
+      description: List Self-Reported Results Endpoint
+      parameters:
+      - name: ordering
+        in: query
+        description: 'Optional: query parameter in which self-reported results can be ordered by. By default, self-reported results are ordered by latest reported_at time.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - reported_at
+          - -reported_at
+      - name: reported_at_start
+        in: query
+        description: Indicates the earliest (start) or latest (end) reported time of self-reported results to be returned
+        required: false
+        schema:
+          type: string
+      - name: reported_at_end
+        in: query
+        description: Indicates the earliest (start) or latest (end) reported time of self-reported results to be returned
+        required: false
+        schema:
+          type: string
+      - name: test_date_start
+        in: query
+        description: Indicates the earliest (start) or latest (end) test date of self-reported results to be returned
+        required: false
+        schema:
+          type: string
+      - name: test_date_end
+        in: query
+        description: Indicates the earliest (start) or latest (end) test date of self-reported results to be returned
+        required: false
+        schema:
+          type: string
+      - name: populations
+        in: query
+        description: Represents your populations - this indicates the testing populations that you are querying self-reported results for. If you do not provide populations, then self-reported results from all of the organization’s populations will be returned.
+        required: false
+        schema:
+          type: string
+      - name: participant_ids
+        in: query
+        description: Array of strings representing participant ids of participants. If an array of participant ids is provided, only self-reported results with participant ids in the array will be returned. Query for a maximum of 50 external ids per request.
+        required: false
+        schema:
+          type: string
+      - name: test_significance
+        in: query
+        description: String indicating the desired test significance of the self-reported results. If the query parameter is included, but does not contain one of the accepted values, we will return 400 Bad request.
+        required: false
+        schema:
+          type: string
+      - name: test_type
+        in: query
+        description: String indicating the desired test type of the self-reported results. If the query parameter is included, but does not contain one of the accepted values, we will return 400 Bad request.
+        required: false
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        description: The pagination cursor value.
+        required: false
+        schema:
+          type: string
+      - name: page_size
+        in: query
+        description: 'Optional: represents the maximum number of self-reported results to return. This integer should be between 1 (min) and 500 (max) inclusive. By default, 50 self-reported results will be returned.'
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                required:
+                - results
+                type: object
+                properties:
+                  next:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the next page. Will be null if currently on the last page.
+                  previous:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the previous page. Will be null if currently on the first page.
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SelfReportedResultApi'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - populations
+      summary: List self-reported results
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        line1:
+          title: Address line 1
+          type: string
+          readOnly: true
+          minLength: 1
+        line2:
+          title: Address line 2
+          type: string
+          readOnly: true
+          minLength: 1
+        city:
+          title: City
+          type: string
+          readOnly: true
+          minLength: 1
+        state:
+          title: State/Province
+          type: string
+          readOnly: true
+          minLength: 1
+        country:
+          title: Country
+          type: string
+          enum:
+          - AF
+          - AX
+          - AL
+          - DZ
+          - AS
+          - AD
+          - AO
+          - AI
+          - AQ
+          - AG
+          - AR
+          - AM
+          - AW
+          - AU
+          - AT
+          - AZ
+          - BS
+          - BH
+          - BD
+          - BB
+          - BY
+          - BE
+          - BZ
+          - BJ
+          - BM
+          - BT
+          - BO
+          - BQ
+          - BA
+          - BW
+          - BV
+          - BR
+          - IO
+          - BN
+          - BG
+          - BF
+          - BI
+          - CV
+          - KH
+          - CM
+          - CA
+          - KY
+          - CF
+          - TD
+          - CL
+          - CN
+          - CX
+          - CC
+          - CO
+          - KM
+          - CG
+          - CD
+          - CK
+          - CR
+          - CI
+          - HR
+          - CU
+          - CW
+          - CY
+          - CZ
+          - DK
+          - DJ
+          - DM
+          - DO
+          - EC
+          - EG
+          - SV
+          - GQ
+          - ER
+          - EE
+          - SZ
+          - ET
+          - FK
+          - FO
+          - FJ
+          - FI
+          - FR
+          - GF
+          - PF
+          - TF
+          - GA
+          - GM
+          - GE
+          - DE
+          - GH
+          - GI
+          - GR
+          - GL
+          - GD
+          - GP
+          - GU
+          - GT
+          - GG
+          - GN
+          - GW
+          - GY
+          - HT
+          - HM
+          - VA
+          - HN
+          - HK
+          - HU
+          - IS
+          - IN
+          - ID
+          - IR
+          - IQ
+          - IE
+          - IM
+          - IL
+          - IT
+          - JM
+          - JP
+          - JE
+          - JO
+          - KZ
+          - KE
+          - KI
+          - KW
+          - KG
+          - LA
+          - LV
+          - LB
+          - LS
+          - LR
+          - LY
+          - LI
+          - LT
+          - LU
+          - MO
+          - MG
+          - MW
+          - MY
+          - MV
+          - ML
+          - MT
+          - MH
+          - MQ
+          - MR
+          - MU
+          - YT
+          - MX
+          - FM
+          - MD
+          - MC
+          - MN
+          - ME
+          - MS
+          - MA
+          - MZ
+          - MM
+          - NA
+          - NR
+          - NP
+          - NL
+          - NC
+          - NZ
+          - NI
+          - NE
+          - NG
+          - NU
+          - NF
+          - KP
+          - MK
+          - MP
+          - 'NO'
+          - OM
+          - PK
+          - PW
+          - PS
+          - PA
+          - PG
+          - PY
+          - PE
+          - PH
+          - PN
+          - PL
+          - PT
+          - PR
+          - QA
+          - RE
+          - RO
+          - RU
+          - RW
+          - BL
+          - SH
+          - KN
+          - LC
+          - MF
+          - PM
+          - VC
+          - WS
+          - SM
+          - ST
+          - SA
+          - SN
+          - RS
+          - SC
+          - SL
+          - SG
+          - SX
+          - SK
+          - SI
+          - SB
+          - SO
+          - ZA
+          - GS
+          - KR
+          - SS
+          - ES
+          - LK
+          - SD
+          - SR
+          - SJ
+          - SE
+          - CH
+          - SY
+          - TW
+          - TJ
+          - TZ
+          - TH
+          - TL
+          - TG
+          - TK
+          - TO
+          - TT
+          - TN
+          - TR
+          - TM
+          - TC
+          - TV
+          - UG
+          - UA
+          - AE
+          - GB
+          - UM
+          - US
+          - UY
+          - UZ
+          - VU
+          - VE
+          - VN
+          - VG
+          - VI
+          - WF
+          - EH
+          - YE
+          - ZM
+          - ZW
+          readOnly: true
+        postal_code:
+          title: Postal Code
+          type: string
+          readOnly: true
+          minLength: 1
+    CycleThresholdValue:
+      required:
+      - gene
+      - value
+      type: object
+      properties:
+        gene:
+          title: Gene
+          type: string
+          minLength: 1
+        value:
+          title: Value
+          type: string
+          format: decimal
+    EligibilityListResponse:
+      required:
+      - results
+      - total
+      - ignored_columns
+      type: object
+      properties:
+        results:
+          $ref: '#/components/schemas/EligiblityListRowCounts'
+        total:
+          title: Total
+          description: Total number of active eligible entries in the population.
+          type: integer
+        ignored_columns:
+          description: List of ignored columns from the input csv.
+          type: array
+          items:
+            type: string
+            minLength: 1
+    EligiblityListRowCounts:
+      required:
+      - created
+      - updated
+      - invalidated
+      type: object
+      properties:
+        created:
+          title: Created
+          description: Number of new entries added to the eligibility list.
+          type: integer
+        updated:
+          title: Updated
+          description: Number of existing entries (entries with the same identifier) that were updated with new information.
+          type: integer
+        invalidated:
+          title: Invalidated
+          description: Number of old entries that were removed from an eligibility list.
+          type: integer
+    PatientProfileResultApi:
+      description: Object containing patient profile data.
+      required:
+      - sex
+      - race_ethnicity
+      type: object
+      properties:
+        first_name:
+          title: First name
+          type: string
+          readOnly: true
+          minLength: 1
+        last_name:
+          title: Last name
+          type: string
+          readOnly: true
+          minLength: 1
+        middle_name:
+          title: Middle name
+          type: string
+          readOnly: true
+          minLength: 1
+        birthday:
+          title: Birthday
+          type: string
+          format: date
+          readOnly: true
+        sex:
+          title: Sex
+          type: string
+          minLength: 1
+        email:
+          title: Email
+          type: string
+          format: email
+          readOnly: true
+          minLength: 1
+        phone_number:
+          title: Phone number
+          type: string
+          readOnly: true
+        address:
+          title: Address
+          type: string
+          readOnly: true
+        external_id:
+          title: External id
+          type: string
+          readOnly: true
+          minLength: 1
+        race_ethnicity:
+          type: array
+          items:
+            type: string
+            enum:
+            - African American / Black
+            - Asian
+            - Cambodian
+            - Chinese
+            - Filipino
+            - Asian Indian
+            - Japanese
+            - Korean
+            - Laotian
+            - Vietnamese
+            - Native Hawaiian or Other Pacific Islander (NHOP)
+            - Guamanian
+            - Hawaiian
+            - Samoan
+            - Native American
+            - Middle Eastern
+            - North African
+            - Latino/a
+            - White
+            - Multiethnic
+            - Other
+    SelfReportedResultApi:
+      type: object
+      properties:
+        participant_id:
+          title: Participant id
+          description: The patient ID of the participant with self reported test results
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        patient:
+          $ref: '#/components/schemas/PatientProfileResultApi'
+        population:
+          title: Population
+          description: The population this participant belongs to in the organization
+          type: string
+          minLength: 1
+        test_type:
+          title: Test type
+          description: The type of test reported by the participant.
+          type: string
+          enum:
+          - covid-19 rapid
+          - Abbott BinaxNOW
+          - Lucira Check It
+          - Quidel QuickVue
+          - BinaxNOW COVID-19 Ag Card
+          - BinaxNOW COVID-19 Ag Card Home Test
+          - BinaxNOW COVID-19 Antigen Self Test
+          - BinaxNOW COVID-19 Ag Card 2 Home Test
+          - BinaxNOW COVID-19 Ag 2 Card
+          - CareStart COVID-19 Antigen test
+          - BD Veritor System for Rapid Detection of SARS-CoV-2
+          - Celltrion DiaTrust COVID-19 Ag Rapid Test
+          - Ellume COVID-19 Home Test
+          - Clip COVID Rapid Antigen Test
+          - LumiraDx SARS-CoV-2 Ag Test
+          - Sofia SARS Antigen FIA
+          - QuickVue At-Home OTC COVID-19 Test
+          - QuickVue SARS Antigen Test
+          - Accula SARS-Cov-2 Test
+          - ID NOW COVID-19
+          - iHealth COVID-19 Antigen Rapid Test
+          - Cue COVID-19 Test
+          - Cue COVID-19 Test for Home and Over The Counter (OTC) Use
+          - Lucira CHECK-IT COVID-19 Test Kit
+          - Lucira COVID-19 All-In-One Test Kit
+          - Visby Medical COVID-19 Point of Care Test
+          - Other rapid test
+          - Other lab-based test
+        test_significance:
+          title: Test significance
+          description: Indicates significance of the test result.
+          type: string
+          enum:
+          - Detected
+          - Not Detected
+          - Inconclusive
+        test_date:
+          title: Test date
+          description: The date the patient took the test, not the date the test was reported.
+          type: string
+          format: date
+        reported_at:
+          title: Reported at
+          description: When the participant first reported this test result
+          type: string
+          format: date-time
+      required:
+      - participant_id
+      - patient
+      - population
+      - test_type
+      - test_significance
+      - test_date
+      - reported_at
+    SampleParticipantStatusApi:
+      required:
+      - kit_barcode
+      - activated_at
+      - collected_at
+      type: object
+      properties:
+        kit_barcode:
+          title: Kit barcode
+          description: Barcode included in the test collection kit.
+          type: string
+          minLength: 1
+        activated_at:
+          title: Activated at
+          description: When the sample was activated, null otherwise.
+          type: string
+          format: date-time
+        received_at_lab:
+          title: Received at lab
+          description: When the sample was received at the lab.
+          type: string
+          format: date-time
+          readOnly: true
+        collected_at:
+          title: Collected at
+          description: When the sample was collected.
+          type: string
+          format: date-time
+        processing_lab:
+          title: Processing lab
+          description: name of processing lab if available, null otherwise.
+          type: string
+          readOnly: true
+        is_canceled:
+          title: Is canceled
+          description: indicates whether to the kit order was cancelled or not
+          type: string
+          readOnly: true
+    SampleResultApi:
+      required:
+      - kit_barcode
+      - activated_at
+      - collected_at
+      type: object
+      properties:
+        kit_barcode:
+          title: Kit barcode
+          description: Barcode included in the test collection kit.
+          type: string
+          minLength: 1
+        activated_at:
+          title: Activated at
+          description: When the sample was activated, null otherwise.
+          type: string
+          format: date-time
+        received_at_lab:
+          title: Received at lab
+          description: When the sample was received at the lab.
+          type: string
+          format: date-time
+          readOnly: true
+        collected_at:
+          title: Collected at
+          description: When the sample was collected.
+          type: string
+          format: date-time
+        processing_lab:
+          title: Processing lab
+          description: name of processing lab if available, null otherwise.
+          type: string
+          readOnly: true
+    SampleApi:
+      required:
+      - kit_barcode
+      - activated_at
+      - received_at_lab
+      - collected_at
+      - processing_lab
+      - participant_id
+      - resulted_at
+      - cancelled_at
+      type: object
+      properties:
+        kit_barcode:
+          title: Kit barcode
+          description: Barcode included in the test collection kit.
+          type: string
+          minLength: 1
+        activated_at:
+          title: Activated at
+          description: When the sample was activated, null otherwise.
+          type: string
+          format: date-time
+        received_at_lab:
+          title: Received at lab
+          description: When the sample was received at the lab.
+          type: string
+          format: date-time
+        collected_at:
+          title: Collected at
+          description: When the sample was collected.
+          type: string
+          format: date-time
+        processing_lab:
+          title: Processing lab
+          description: name of processing lab if available, null otherwise.
+          type: string
+        participant_id:
+          title: Participant id
+          description: The public id of the participant, can be used to query participant status endpoint.
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        resulted_at:
+          title: Resulted at
+          description: When the sample was resulted, null otherwise.
+          type: string
+          format: date-time
+        cancelled_at:
+          title: Cancelled at
+          description: When the sample was cancelled, null otherwise.
+          type: string
+          format: date-time
+    ResultApi:
+      required:
+      - significance
+      - is_revision
+      - released_at
+      - opened_at
+      - population
+      - patient
+      - sample
+      - rejection_code
+      - cycle_thresholds
+      - organization
+      - test_type
+      type: object
+      properties:
+        significance:
+          title: Significance
+          description: detected,not_detected,inconclusive,failed
+          type: string
+        is_revision:
+          title: Is revision
+          description: Indicates whether or not this report is a modification of a previously released report.
+          type: boolean
+        released_at:
+          title: Released at
+          description: Time the result was released to the patient
+          type: string
+          format: date-time
+        opened_at:
+          title: Opened at
+          description: Time the result was viewed by the patient
+          type: string
+          format: date-time
+        population:
+          title: Population
+          description: The population this participant belongs to in the organization.
+          type: string
+          minLength: 1
+        patient:
+          $ref: '#/components/schemas/PatientProfileResultApi'
+        sample:
+          $ref: '#/components/schemas/SampleResultApi'
+        rejection_code:
+          title: Rejection code
+          description: Rejection code provided by the lab
+          type: string
+        cycle_thresholds:
+          description: A list of cycle threshold values
+          type: array
+          items:
+            $ref: '#/components/schemas/CycleThresholdValue'
+        organization:
+          title: Organization
+          description: The organization this participant belongs to.
+          type: string
+          minLength: 1
+        test_type:
+          title: Test type
+          description: The type of test of the result, valid values include 'Rapid' and 'Individual Lab'
+          type: string
+    ParticipantStatusApi:
+      required:
+      - population
+      - populations
+      - external_id
+      - compliance_state
+      - testing_cadence_cohort
+      - first_name
+      - middle_name
+      - last_name
+      - birthday
+      - sex
+      - email
+      - eligible_email
+      - phone_number
+      - race_ethnicity
+      - participant_id
+      - address
+      - samples
+      - vaccination_status
+      - vaccination_status_last_updated
+      type: object
+      properties:
+        population:
+          title: Population
+          description: The population this participant belongs to in the organization
+          type: string
+        populations:
+          description: All populations this participant belongs to in the organization
+          type: array
+          items:
+            type: string
+        external_id:
+          title: External id
+          description: University or Employer ID number
+          type: string
+        compliance_state:
+          title: Compliance state
+          description: untested, compliant, activated_not_accessioned, overdue, positive
+          type: string
+        testing_cadence_cohort:
+          title: Testing cadence cohort
+          description: Name of testing cadence cohort
+          type: string
+        first_name:
+          title: First name
+          type: string
+          minLength: 1
+        middle_name:
+          title: Middle name
+          type: string
+          minLength: 1
+        last_name:
+          title: Last name
+          type: string
+          minLength: 1
+        birthday:
+          title: Birthday
+          type: string
+          format: date
+        sex:
+          title: Sex
+          description: F, M, O
+          type: string
+          minLength: 1
+        email:
+          title: Email address
+          type: string
+          format: email
+          minLength: 1
+        eligible_email:
+          title: Eligible email
+          description: Email provided in eligibility file
+          type: string
+        phone_number:
+          title: Phone number
+          type: string
+        race_ethnicity:
+          description: List of the participant's races and ethnicity.
+          type: array
+          items:
+            type: string
+            enum:
+            - African American / Black
+            - Asian
+            - Cambodian
+            - Chinese
+            - Filipino
+            - Asian Indian
+            - Japanese
+            - Korean
+            - Laotian
+            - Vietnamese
+            - Native Hawaiian or Other Pacific Islander (NHOP)
+            - Guamanian
+            - Hawaiian
+            - Samoan
+            - Native American
+            - Middle Eastern
+            - North African
+            - Latino/a
+            - White
+            - Multiethnic
+            - Other
+        participant_id:
+          title: Participant id
+          description: The patient ID of the participant.
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        address:
+          $ref: '#/components/schemas/Address'
+        samples:
+          description: Activated samples of the participant ordered by most recently activated
+          type: array
+          items:
+            $ref: '#/components/schemas/SampleParticipantStatusApi'
+        vaccination_status:
+          title: Vaccination status
+          description: 'The vaccination status of the participant. This can be one of the following: fully_vaccinated, partially_vaccinated, not_vaccinated_but_intend_to, not_vaccinated_and_do_not_intend_to, not_vaccinated, declined_to_answer.'
+          type: string
+        vaccination_status_last_updated:
+          title: Vaccination status last updated
+          description: The latest time when a vaccination status was updated
+          type: string
+  securitySchemes:
+    Bearer:
+      in: header
+      name: Authorization
+      type: apiKey

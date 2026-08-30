@@ -1,0 +1,325 @@
+openapi: 3.2.0
+info:
+  title: External API V1 Eligibility API
+  description: Color Health's External API V1 — the partner-facing REST API behind docs.color.com/reference. It lets benefit administrators and lab/LIMS partners manage eligibility entries for their populations, upload eligibility files, query participants, results, samples and self-reported results, and (for lab partners) accession, report and destroy test samples. Authentication is a Color-issued bearer token supplied in the Authorization header; staging and production use separate tokens.
+  termsOfService: https://www.color.com/tos/
+  contact:
+    email: dev@color.com
+    name: Color Health API Support
+    url: https://docs.color.com/reference
+  license:
+    name: private
+  version: v1
+servers:
+- url: https://api.color.com/api/v1/external
+  description: Production
+security:
+- Bearer: []
+tags:
+- name: eligibility
+  description: Eligibility entries and eligibility-file uploads for a population.
+paths:
+  /eligibility/entries:
+    parameters: []
+    get:
+      operationId: eligibility_entries_list
+      description: List Eligibility Entries Endpoint
+      parameters:
+      - name: ordering
+        in: query
+        description: 'Optional: query parameter in which eligibility entries can be ordered by. By default, eligibility entries are ordered by latest created_at time.'
+        required: false
+        schema:
+          type: string
+          enum:
+          - created_at
+          - -created_at
+      - name: cursor
+        in: query
+        description: The pagination cursor value.
+        required: false
+        schema:
+          type: string
+      - name: page_size
+        in: query
+        description: 'Optional: represents the maximum number of eligibility entries to return. This integer should be between 1 (min) and 500 (max) inclusive. By default, 50 eligibility entries will be returned.'
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+      - name: populations
+        in: query
+        description: 'Optional: represents the testing populations returned in the eligibility entries. By default if no value is provided, entries from all of the organization’s populations will be returned.'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: unique_identifiers
+        in: query
+        description: 'Optional: represents the unique idenitifers of the eligibility entries. By default if no value is provided, all eligibility entries will be returned.'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: external_ids
+        in: query
+        description: 'Optional: represents the external ids of the eligibility entries. By default if no value is provided, then all eligibility entries will be returned.'
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                required:
+                - results
+                type: object
+                properties:
+                  next:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the next page. Will be null if currently on the last page.
+                  previous:
+                    type:
+                    - string
+                    - 'null'
+                    format: uri
+                    description: URL prepopulated with query parameters to get the previous page. Will be null if currently on the first page.
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EligibilityEntry'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - eligibility
+      summary: List eligibility entries
+    post:
+      operationId: eligibility_entries_create
+      description: Create Eligibility Entries Endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EligibilityEntry'
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityEntry'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - eligibility
+      summary: Create an eligibility entry
+  /eligibility/entries/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      operationId: eligibility_entries_read
+      description: Retrieve Eligibility Entries Endpoint
+      parameters:
+      - name: id
+        in: path
+        description: The eligibility entry id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityEntry'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '404':
+          description: Result could not be retrieved. Please check your query parameters.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - eligibility
+      summary: Retrieve an eligibility entry
+    put:
+      operationId: eligibility_entries_update
+      description: Update Eligibility Entries Endpoint
+      parameters:
+      - name: id
+        in: path
+        description: The eligibility entry id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EligibilityEntryUpdate'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EligibilityEntryUpdate'
+        '400':
+          description: Response body will contain list of all error messages.
+        '403':
+          description: Authentication token was not provided or accepted.
+        '404':
+          description: Result does not exist.
+        '500':
+          description: An error has occurred, please try again.
+      tags:
+      - eligibility
+      summary: Update an eligibility entry
+components:
+  schemas:
+    EligibilityEntry:
+      required:
+      - unique_identifier
+      - identifier_type
+      - population
+      type: object
+      properties:
+        id:
+          title: Id
+          description: A UUID representing the eligibility entry, can also be used in the retrieve endpoint.
+          type: string
+          format: uuid
+          readOnly: true
+        unique_identifier:
+          title: Unique identifier
+          description: The unique identifier for the eligibility entry.
+          type: string
+          minLength: 1
+        identifier_type:
+          title: Identifier type
+          description: The type of the unique identifier. Possible values are ['email', 'unique_id'].
+          type: string
+          enum:
+          - email
+          - employee_id
+          - requisition_number
+          - research_id
+          - appointment_id
+          - 'null'
+          - unique_id
+        population:
+          title: Population
+          description: Population that is associated with the eligibility entry.
+          type: string
+          minLength: 1
+        testing_cadence:
+          title: Testing cadence
+          description: The testing cadence of the eligibility entry, defaults to null if no value is provided.
+          type:
+          - string
+          - 'null'
+        invalidated_at:
+          title: Invalidated at
+          description: Timestamp indicating when the eligibility entry has been invalidated.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        external_id:
+          title: External id
+          description: The external id for the eligibility entry, value is null if no external id exists.
+          type:
+          - string
+          - 'null'
+          minLength: 1
+    EligibilityEntryUpdate:
+      type: object
+      properties:
+        id:
+          title: Id
+          description: A UUID representing the eligibility entry, can also be used in the retrieve endpoint.
+          type: string
+          format: uuid
+          readOnly: true
+        unique_identifier:
+          title: Unique identifier
+          description: The unique identifier for the eligibility entry.
+          type: string
+          readOnly: true
+          minLength: 1
+        identifier_type:
+          title: Identifier type
+          description: The type of the unique identifier. Possible values are ['email', 'unique_id'].
+          type: string
+          enum:
+          - email
+          - employee_id
+          - requisition_number
+          - research_id
+          - appointment_id
+          - 'null'
+          - unique_id
+          readOnly: true
+        population:
+          title: Population
+          description: Population that is associated with the eligibility entry.
+          type: string
+          readOnly: true
+          minLength: 1
+        testing_cadence:
+          title: Testing cadence
+          description: The testing cadence of the eligibility entry, defaults to null if no value is provided.
+          type:
+          - string
+          - 'null'
+        invalidated_at:
+          title: Invalidated at
+          description: Timestamp indicating when the eligibility entry has been invalidated.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        external_id:
+          title: External id
+          description: The external id for the eligibility entry, value is null if no external id exists.
+          type:
+          - string
+          - 'null'
+          minLength: 1
+  securitySchemes:
+    Bearer:
+      in: header
+      name: Authorization
+      type: apiKey
