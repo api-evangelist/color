@@ -123,6 +123,10 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: LinkedIn
+  url: https://www.linkedin.com/company/color
+- type: Interoperability
+  url: https://www.redoxengine.com/healthcare-product/color/
 - type: CapabilityMap
   url: capabilities/color-capability-edges.yml
   name: Color Business Capability Map

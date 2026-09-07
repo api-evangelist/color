@@ -1,16 +1,21 @@
 {
- "provider": "color",
- "sources": [
-  "color-external-api-v1-openapi.json"
- ],
- "outputs": [
-  "color-external-api-v1-openapi.yml"
- ],
- "archived": [],
- "errors": [],
- "warnings": [],
- "notes": [
-  "Source is Color's own published OpenAPI 3.0.0, saved verbatim to openapi/_original/ from the ReadMe API registry (oasPublicUrl @color/v1.0). Supersedes the hand-reconstructed color-eligibility-api-openapi.yml, which was removed 2026-08-15 along with its derived collections."
- ],
- "skipped": []
+  "provider": "color",
+  "sources": [
+    "color-external-api-v1-openapi.yml"
+  ],
+  "outputs": [
+    "color-eligibility-api-openapi.yml",
+    "color-populations-api-openapi.yml",
+    "color-samples-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/color-external-api-v1-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "color-external-api-v1-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "apis.yml register: written (+3 apis, 3 total)"
+  ],
+  "skipped": []
 }
