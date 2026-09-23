@@ -1,21 +1,29 @@
 {
   "provider": "color",
   "sources": [
-    "color-external-api-v1-openapi.yml"
+    "_original/color-external-api-v1-openapi.json"
   ],
   "outputs": [
     "color-eligibility-api-openapi.yml",
     "color-populations-api-openapi.yml",
     "color-samples-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/color-external-api-v1-openapi.yml"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
-    "color-external-api-v1-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+3 apis, 3 total)"
+    "1 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "color-external-api-v1-openapi.json: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "color-external-api-v1-openapi.json: declared missing tag: eligibility",
+    "color-external-api-v1-openapi.json: declared missing tag: populations",
+    "color-external-api-v1-openapi.json: declared missing tag: samples",
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "_original/color-external-api-v1-openapi.yml: archived document superseded by a larger archived document",
+    "color-eligibility-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "color-populations-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "color-samples-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

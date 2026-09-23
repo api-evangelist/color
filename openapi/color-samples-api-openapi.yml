@@ -1,28 +1,24 @@
 openapi: 3.2.0
 info:
   title: External API V1 Samples API
-  description: Color Health's External API V1 — the partner-facing REST API behind docs.color.com/reference. It lets benefit administrators and lab/LIMS partners manage eligibility entries for their populations, upload eligibility files, query participants, results, samples and self-reported results, and (for lab partners) accession, report and destroy test samples. Authentication is a Color-issued bearer token supplied in the Authorization header; staging and production use separate tokens.
+  description: ''
   termsOfService: https://www.color.com/tos/
   contact:
     email: dev@color.com
-    name: Color Health API Support
-    url: https://docs.color.com/reference
   license:
     name: private
   version: v1
 servers:
 - url: https://api.color.com/api/v1/external
-  description: Production
 security:
 - Bearer: []
 tags:
-- name: samples
-  description: 'Lab/LIMS sample lifecycle: accession, result reporting, destruction.'
+- name: Samples
 paths:
   /samples/{sample_barcode}/accession:
     post:
       tags:
-      - samples
+      - Samples
       description: This endpoint records that a sample has arrived at the lab. If the sample was previously accessioned by the caller, its status will not be modified (the endpoint is idempotent).
       parameters:
       - name: sample_barcode
@@ -158,12 +154,14 @@ paths:
           description: The sample wasn't found in Color's database (i.e. the barcode was invalid)
         '500':
           description: An error has occurred, please try again after a few minutes.
-      operationId: samples_accession_create
-      summary: Record that a sample arrived at the lab
+      summary: Create samples by sample barcode accession
+      x-summary-source: derived
+      operationId: postSamplesBySampleBarcodeAccession
+      x-operation-id-source: derived
   /samples/{sample_barcode}/results:
     post:
       tags:
-      - samples
+      - Samples
       description: This endpoint records the test result for a sample. If the result has already been reported (identified by the assay and the completion time), nothing happens (the endpoint is idempotent).
       parameters:
       - name: sample_barcode
@@ -290,12 +288,14 @@ paths:
           description: The sample wasn't found in Color's database (i.e. the barcode was invalid)
         '500':
           description: An error has occurred, please try again after a few minutes.
-      operationId: samples_results_create
-      summary: Record a test result for a sample
+      summary: Create samples by sample barcode results
+      x-summary-source: derived
+      operationId: postSamplesBySampleBarcodeResults
+      x-operation-id-source: derived
   /samples/{sample_barcode}/destroy:
     post:
       tags:
-      - samples
+      - Samples
       description: This endpoint records that an unapproved sample is being destroyed by the lab. If the sample was already destroyed, nothing happens (the endpoint is idempotent).
       parameters:
       - name: sample_barcode
@@ -314,8 +314,10 @@ paths:
           description: The sample wasn't found in Color's database (i.e. the barcode was invalid)
         '500':
           description: An error has occurred, please try again after a few minutes.
-      operationId: samples_destroy_create
-      summary: Record that an unapproved sample was destroyed
+      summary: Create samples by sample barcode destroy
+      x-summary-source: derived
+      operationId: postSamplesBySampleBarcodeDestroy
+      x-operation-id-source: derived
 components:
   securitySchemes:
     Bearer:

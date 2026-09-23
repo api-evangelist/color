@@ -1,23 +1,19 @@
 openapi: 3.2.0
 info:
   title: External API V1 Populations API
-  description: Color Health's External API V1 — the partner-facing REST API behind docs.color.com/reference. It lets benefit administrators and lab/LIMS partners manage eligibility entries for their populations, upload eligibility files, query participants, results, samples and self-reported results, and (for lab partners) accession, report and destroy test samples. Authentication is a Color-issued bearer token supplied in the Authorization header; staging and production use separate tokens.
+  description: ''
   termsOfService: https://www.color.com/tos/
   contact:
     email: dev@color.com
-    name: Color Health API Support
-    url: https://docs.color.com/reference
   license:
     name: private
   version: v1
 servers:
 - url: https://api.color.com/api/v1/external
-  description: Production
 security:
 - Bearer: []
 tags:
-- name: populations
-  description: 'Read-side queries across a population: participants, results, samples, self-reported results.'
+- name: Populations
 paths:
   /populations/eligibility_list:
     parameters: []
@@ -58,8 +54,9 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: Upload an eligibility file for a population
+      - Populations
+      summary: Populations eligibility list
+      x-summary-source: derived
   /populations/participants:
     parameters: []
     get:
@@ -215,8 +212,9 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: List participants
+      - Populations
+      summary: Populations participants list
+      x-summary-source: derived
   /populations/results:
     parameters: []
     get:
@@ -345,8 +343,9 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: List results
+      - Populations
+      summary: Populations results list
+      x-summary-source: derived
   /populations/samples:
     parameters: []
     get:
@@ -444,8 +443,9 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: List samples
+      - Populations
+      summary: Populations samples list
+      x-summary-source: derived
   /populations/samples/{kit_barcode}:
     parameters:
     - name: kit_barcode
@@ -479,8 +479,9 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: Retrieve a sample by kit barcode
+      - Populations
+      summary: Populations samples read
+      x-summary-source: derived
   /populations/self_reported_results:
     parameters: []
     get:
@@ -591,10 +592,49 @@ paths:
         '500':
           description: An error has occurred, please try again.
       tags:
-      - populations
-      summary: List self-reported results
+      - Populations
+      summary: Populations self reported results list
+      x-summary-source: derived
 components:
   schemas:
+    SampleParticipantStatusApi:
+      required:
+      - kit_barcode
+      - activated_at
+      - collected_at
+      type: object
+      properties:
+        kit_barcode:
+          title: Kit barcode
+          description: Barcode included in the test collection kit.
+          type: string
+          minLength: 1
+        activated_at:
+          title: Activated at
+          description: When the sample was activated, null otherwise.
+          type: string
+          format: date-time
+        received_at_lab:
+          title: Received at lab
+          description: When the sample was received at the lab.
+          type: string
+          format: date-time
+          readOnly: true
+        collected_at:
+          title: Collected at
+          description: When the sample was collected.
+          type: string
+          format: date-time
+        processing_lab:
+          title: Processing lab
+          description: name of processing lab if available, null otherwise.
+          type: string
+          readOnly: true
+        is_canceled:
+          title: Is canceled
+          description: indicates whether to the kit order was cancelled or not
+          type: string
+          readOnly: true
     Address:
       type: object
       properties:
@@ -877,20 +917,119 @@ components:
           type: string
           readOnly: true
           minLength: 1
-    CycleThresholdValue:
+    SampleApi:
       required:
-      - gene
-      - value
+      - kit_barcode
+      - activated_at
+      - received_at_lab
+      - collected_at
+      - processing_lab
+      - participant_id
+      - resulted_at
+      - cancelled_at
       type: object
       properties:
-        gene:
-          title: Gene
+        kit_barcode:
+          title: Kit barcode
+          description: Barcode included in the test collection kit.
           type: string
           minLength: 1
-        value:
-          title: Value
+        activated_at:
+          title: Activated at
+          description: When the sample was activated, null otherwise.
           type: string
-          format: decimal
+          format: date-time
+        received_at_lab:
+          title: Received at lab
+          description: When the sample was received at the lab.
+          type: string
+          format: date-time
+        collected_at:
+          title: Collected at
+          description: When the sample was collected.
+          type: string
+          format: date-time
+        processing_lab:
+          title: Processing lab
+          description: name of processing lab if available, null otherwise.
+          type: string
+        participant_id:
+          title: Participant id
+          description: The public id of the participant, can be used to query participant status endpoint.
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        resulted_at:
+          title: Resulted at
+          description: When the sample was resulted, null otherwise.
+          type: string
+          format: date-time
+        cancelled_at:
+          title: Cancelled at
+          description: When the sample was cancelled, null otherwise.
+          type: string
+          format: date-time
+    ResultApi:
+      required:
+      - significance
+      - is_revision
+      - released_at
+      - opened_at
+      - population
+      - patient
+      - sample
+      - rejection_code
+      - cycle_thresholds
+      - organization
+      - test_type
+      type: object
+      properties:
+        significance:
+          title: Significance
+          description: detected,not_detected,inconclusive,failed
+          type: string
+        is_revision:
+          title: Is revision
+          description: Indicates whether or not this report is a modification of a previously released report.
+          type: boolean
+        released_at:
+          title: Released at
+          description: Time the result was released to the patient
+          type: string
+          format: date-time
+        opened_at:
+          title: Opened at
+          description: Time the result was viewed by the patient
+          type: string
+          format: date-time
+        population:
+          title: Population
+          description: The population this participant belongs to in the organization.
+          type: string
+          minLength: 1
+        patient:
+          $ref: '#/components/schemas/PatientProfileResultApi'
+        sample:
+          $ref: '#/components/schemas/SampleResultApi'
+        rejection_code:
+          title: Rejection code
+          description: Rejection code provided by the lab
+          type: string
+        cycle_thresholds:
+          description: A list of cycle threshold values
+          type: array
+          items:
+            $ref: '#/components/schemas/CycleThresholdValue'
+        organization:
+          title: Organization
+          description: The organization this participant belongs to.
+          type: string
+          minLength: 1
+        test_type:
+          title: Test type
+          description: The type of test of the result, valid values include 'Rapid' and 'Individual Lab'
+          type: string
     EligibilityListResponse:
       required:
       - results
@@ -1005,120 +1144,6 @@ components:
             - White
             - Multiethnic
             - Other
-    SelfReportedResultApi:
-      type: object
-      properties:
-        participant_id:
-          title: Participant id
-          description: The patient ID of the participant with self reported test results
-          type:
-          - string
-          - 'null'
-          minLength: 1
-        patient:
-          $ref: '#/components/schemas/PatientProfileResultApi'
-        population:
-          title: Population
-          description: The population this participant belongs to in the organization
-          type: string
-          minLength: 1
-        test_type:
-          title: Test type
-          description: The type of test reported by the participant.
-          type: string
-          enum:
-          - covid-19 rapid
-          - Abbott BinaxNOW
-          - Lucira Check It
-          - Quidel QuickVue
-          - BinaxNOW COVID-19 Ag Card
-          - BinaxNOW COVID-19 Ag Card Home Test
-          - BinaxNOW COVID-19 Antigen Self Test
-          - BinaxNOW COVID-19 Ag Card 2 Home Test
-          - BinaxNOW COVID-19 Ag 2 Card
-          - CareStart COVID-19 Antigen test
-          - BD Veritor System for Rapid Detection of SARS-CoV-2
-          - Celltrion DiaTrust COVID-19 Ag Rapid Test
-          - Ellume COVID-19 Home Test
-          - Clip COVID Rapid Antigen Test
-          - LumiraDx SARS-CoV-2 Ag Test
-          - Sofia SARS Antigen FIA
-          - QuickVue At-Home OTC COVID-19 Test
-          - QuickVue SARS Antigen Test
-          - Accula SARS-Cov-2 Test
-          - ID NOW COVID-19
-          - iHealth COVID-19 Antigen Rapid Test
-          - Cue COVID-19 Test
-          - Cue COVID-19 Test for Home and Over The Counter (OTC) Use
-          - Lucira CHECK-IT COVID-19 Test Kit
-          - Lucira COVID-19 All-In-One Test Kit
-          - Visby Medical COVID-19 Point of Care Test
-          - Other rapid test
-          - Other lab-based test
-        test_significance:
-          title: Test significance
-          description: Indicates significance of the test result.
-          type: string
-          enum:
-          - Detected
-          - Not Detected
-          - Inconclusive
-        test_date:
-          title: Test date
-          description: The date the patient took the test, not the date the test was reported.
-          type: string
-          format: date
-        reported_at:
-          title: Reported at
-          description: When the participant first reported this test result
-          type: string
-          format: date-time
-      required:
-      - participant_id
-      - patient
-      - population
-      - test_type
-      - test_significance
-      - test_date
-      - reported_at
-    SampleParticipantStatusApi:
-      required:
-      - kit_barcode
-      - activated_at
-      - collected_at
-      type: object
-      properties:
-        kit_barcode:
-          title: Kit barcode
-          description: Barcode included in the test collection kit.
-          type: string
-          minLength: 1
-        activated_at:
-          title: Activated at
-          description: When the sample was activated, null otherwise.
-          type: string
-          format: date-time
-        received_at_lab:
-          title: Received at lab
-          description: When the sample was received at the lab.
-          type: string
-          format: date-time
-          readOnly: true
-        collected_at:
-          title: Collected at
-          description: When the sample was collected.
-          type: string
-          format: date-time
-        processing_lab:
-          title: Processing lab
-          description: name of processing lab if available, null otherwise.
-          type: string
-          readOnly: true
-        is_canceled:
-          title: Is canceled
-          description: indicates whether to the kit order was cancelled or not
-          type: string
-          readOnly: true
     SampleResultApi:
       required:
       - kit_barcode
@@ -1152,119 +1177,20 @@ components:
           description: name of processing lab if available, null otherwise.
           type: string
           readOnly: true
-    SampleApi:
+    CycleThresholdValue:
       required:
-      - kit_barcode
-      - activated_at
-      - received_at_lab
-      - collected_at
-      - processing_lab
-      - participant_id
-      - resulted_at
-      - cancelled_at
+      - gene
+      - value
       type: object
       properties:
-        kit_barcode:
-          title: Kit barcode
-          description: Barcode included in the test collection kit.
+        gene:
+          title: Gene
           type: string
           minLength: 1
-        activated_at:
-          title: Activated at
-          description: When the sample was activated, null otherwise.
+        value:
+          title: Value
           type: string
-          format: date-time
-        received_at_lab:
-          title: Received at lab
-          description: When the sample was received at the lab.
-          type: string
-          format: date-time
-        collected_at:
-          title: Collected at
-          description: When the sample was collected.
-          type: string
-          format: date-time
-        processing_lab:
-          title: Processing lab
-          description: name of processing lab if available, null otherwise.
-          type: string
-        participant_id:
-          title: Participant id
-          description: The public id of the participant, can be used to query participant status endpoint.
-          type:
-          - string
-          - 'null'
-          minLength: 1
-        resulted_at:
-          title: Resulted at
-          description: When the sample was resulted, null otherwise.
-          type: string
-          format: date-time
-        cancelled_at:
-          title: Cancelled at
-          description: When the sample was cancelled, null otherwise.
-          type: string
-          format: date-time
-    ResultApi:
-      required:
-      - significance
-      - is_revision
-      - released_at
-      - opened_at
-      - population
-      - patient
-      - sample
-      - rejection_code
-      - cycle_thresholds
-      - organization
-      - test_type
-      type: object
-      properties:
-        significance:
-          title: Significance
-          description: detected,not_detected,inconclusive,failed
-          type: string
-        is_revision:
-          title: Is revision
-          description: Indicates whether or not this report is a modification of a previously released report.
-          type: boolean
-        released_at:
-          title: Released at
-          description: Time the result was released to the patient
-          type: string
-          format: date-time
-        opened_at:
-          title: Opened at
-          description: Time the result was viewed by the patient
-          type: string
-          format: date-time
-        population:
-          title: Population
-          description: The population this participant belongs to in the organization.
-          type: string
-          minLength: 1
-        patient:
-          $ref: '#/components/schemas/PatientProfileResultApi'
-        sample:
-          $ref: '#/components/schemas/SampleResultApi'
-        rejection_code:
-          title: Rejection code
-          description: Rejection code provided by the lab
-          type: string
-        cycle_thresholds:
-          description: A list of cycle threshold values
-          type: array
-          items:
-            $ref: '#/components/schemas/CycleThresholdValue'
-        organization:
-          title: Organization
-          description: The organization this participant belongs to.
-          type: string
-          minLength: 1
-        test_type:
-          title: Test type
-          description: The type of test of the result, valid values include 'Rapid' and 'Individual Lab'
-          type: string
+          format: decimal
     ParticipantStatusApi:
       required:
       - population
@@ -1391,6 +1317,82 @@ components:
           title: Vaccination status last updated
           description: The latest time when a vaccination status was updated
           type: string
+    SelfReportedResultApi:
+      type: object
+      properties:
+        participant_id:
+          title: Participant id
+          description: The patient ID of the participant with self reported test results
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        patient:
+          $ref: '#/components/schemas/PatientProfileResultApi'
+        population:
+          title: Population
+          description: The population this participant belongs to in the organization
+          type: string
+          minLength: 1
+        test_type:
+          title: Test type
+          description: The type of test reported by the participant.
+          type: string
+          enum:
+          - covid-19 rapid
+          - Abbott BinaxNOW
+          - Lucira Check It
+          - Quidel QuickVue
+          - BinaxNOW COVID-19 Ag Card
+          - BinaxNOW COVID-19 Ag Card Home Test
+          - BinaxNOW COVID-19 Antigen Self Test
+          - BinaxNOW COVID-19 Ag Card 2 Home Test
+          - BinaxNOW COVID-19 Ag 2 Card
+          - CareStart COVID-19 Antigen test
+          - BD Veritor System for Rapid Detection of SARS-CoV-2
+          - Celltrion DiaTrust COVID-19 Ag Rapid Test
+          - Ellume COVID-19 Home Test
+          - Clip COVID Rapid Antigen Test
+          - LumiraDx SARS-CoV-2 Ag Test
+          - Sofia SARS Antigen FIA
+          - QuickVue At-Home OTC COVID-19 Test
+          - QuickVue SARS Antigen Test
+          - Accula SARS-Cov-2 Test
+          - ID NOW COVID-19
+          - iHealth COVID-19 Antigen Rapid Test
+          - Cue COVID-19 Test
+          - Cue COVID-19 Test for Home and Over The Counter (OTC) Use
+          - Lucira CHECK-IT COVID-19 Test Kit
+          - Lucira COVID-19 All-In-One Test Kit
+          - Visby Medical COVID-19 Point of Care Test
+          - Other rapid test
+          - Other lab-based test
+        test_significance:
+          title: Test significance
+          description: Indicates significance of the test result.
+          type: string
+          enum:
+          - Detected
+          - Not Detected
+          - Inconclusive
+        test_date:
+          title: Test date
+          description: The date the patient took the test, not the date the test was reported.
+          type: string
+          format: date
+        reported_at:
+          title: Reported at
+          description: When the participant first reported this test result
+          type: string
+          format: date-time
+      required:
+      - participant_id
+      - patient
+      - population
+      - test_type
+      - test_significance
+      - test_date
+      - reported_at
   securitySchemes:
     Bearer:
       in: header
