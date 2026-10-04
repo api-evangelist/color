@@ -1,25 +1,24 @@
-# Kin Score artifact — color — 2026-08-30T220315
+# Kin Score artifact — color — 2026-10-03T000835
 # The API Evangelist rating (https://github.com/api-evangelist/kin-score). Generated; do not edit.
 ---
 kin_score:
   slug: color
-  schema_version: 0.17.2
-  scored_at: '2026-08-30'
-  run_ts: 2026-08-30T220315
-  composite: 51.3
+  schema_version: 0.23.0
+  scored_at: '2026-10-03'
+  run_ts: 2026-10-03T000835
+  composite: 49.0
   band: developing
   facets:
-    discoverability: 75.9
-    contract_quality: 57.1
-    governance: 18.2
+    discoverability: 73.2
+    contract_quality: 48.9
+    contract_governance: 18.2
     operational_transparency: 21.1
     developer_ergonomics: 47.0
-    commercial_clarity: 50.0
-    contract_governance: 18.2
     access_clarity: 50.0
   agent_readiness:
-    score: 43.7
-    band: agent-native
+    score: 41.5
+    band: agent-ready
+    band_gated_from: agent-native
     dimensions:
       spec_presence: true
       agentic_access: false
@@ -27,7 +26,7 @@ kin_score:
       mcp_server: false
       auth_clarity: served
       idempotency: documented
-      error_semantics: documented
+      error_semantics: derived
       openapi_examples: partial
       rate_limit_signal: documented
       event_surface_described: false
@@ -44,14 +43,14 @@ kin_score:
     applies: true
     regime: Health
     regime_id: health
-    score: 52.5
+    score: 32.8
     matched_via: tags
   provenance:
     mcp: derived
     skills: derived
     conformance: first-party
     contracts:
-      total: 1
+      total: 3
       derived: 0
       coverage: 0.0
       callable: 100.0
