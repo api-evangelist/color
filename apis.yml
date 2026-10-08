@@ -126,6 +126,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: RateLimits
+  url: rate-limits/color-rate-limits.yml
 - type: LinkedIn
   url: https://www.linkedin.com/company/color
 - type: Interoperability
